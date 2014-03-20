@@ -16,7 +16,7 @@ angular.module(
 			});
 			$routeProvider.when('/history', {
 				templateUrl : 'partials/history.html',
-				controller : 'MyCtrl2'
+				controller : 'HistoryCtrl'
 			});
 			$routeProvider.when('/faq', {
 				templateUrl : 'partials/faq.html',

@@ -1,32 +1,21 @@
 
+
+<div ng-include src="'partials/subheader.html'"></div>
+
 <div class="container">
 	<table class="table table-striped">
 		<thead>
 			<tr>
-				<th>#</th>
 				<th>Date</th>
 				<th>Username</th>
 				<th>Change</th>
 			</tr>
 		</thead>
 		<tbody>
-			<tr>
-				<td>1</td>
-				<td>3/1/2014</td>
-				<td>otto@abc.com</td>
-				<td>Added analytics feature.</td>
-			</tr>
-			<tr>
-				<td>2</td>
-				<td>2/15/2014</td>
-				<td>jbro@abc.com</td>
-				<td>Increased ad feature to deluxe.</td>
-			</tr>
-			<tr>
-				<td>3</td>
-				<td>2/1/2014</td>
-				<td>tahmed@abc.com</td>
-				<td>Added reporting feature.</td>
+			<tr ng-repeat="record in history">
+				<td>{{record.date}}</td>
+				<td>{{record.user}}</td>
+				<td>{{record.change}}</td>
 			</tr>
 		</tbody>
 	</table>
