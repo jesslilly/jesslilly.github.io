@@ -9,27 +9,27 @@
 		<h2>{{settings.Web.setting}}</h2>
 		<label>Enabled</label> <input type="checkbox"
 			ng-model="settings.Web.enabled"> <label>Level</label> <select
-			ng-model="level" ng-options="c.name for c in levels"></select>
+			ng-model="level1" ng-options="c.name for c in levels"></select>
 
 		<h2>{{settings.Analytics.setting}}</h2>
 		<label>Enabled</label> <input type="checkbox"
 			ng-model="settings.Analytics.enabled"> <label>Level</label> <select
-			ng-model="level" ng-options="c.name for c in levels"></select>
+			ng-model="level2" ng-options="c.name for c in levels"></select>
 
 		<h2>{{settings.CustomerRelations.setting}}</h2>
 		<label>Enabled</label> <input type="checkbox"
 			ng-model="settings.CustomerRelations.enabled"> <label>Level</label>
-		<select ng-model="level" ng-options="c.name for c in levels"></select>
+		<select ng-model="level3" ng-options="c.name for c in levels"></select>
 
 		<h2>{{settings.Reporting.setting}}</h2>
 		<label>Enabled</label> <input type="checkbox"
 			ng-model="settings.Reporting.enabled"> <label>Level</label> <select
-			ng-model="level" ng-options="c.name for c in levels"></select>
+			ng-model="level4" ng-options="c.name for c in levels"></select>
 
 		<h2>{{settings.Ads.setting}}</h2>
 		<label>Enabled</label> <input type="checkbox"
 			ng-model="settings.Ads.enabled"> <label>Level</label> <select
-			ng-model="level" ng-options="c.name for c in levels"></select> <label
+			ng-model="level5" ng-options="c.name for c in levels"></select> <label
 			class="control-label" for="ads-provider">Provider:</label><select
 			id="ads-provider" ng-model="provider"
 			ng-options="c.name for c in providers"></select>

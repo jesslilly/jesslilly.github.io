@@ -42,7 +42,11 @@ function SettingsCtrl($scope, $http) {
 		name : 'premium',
 		value : 'premium'
 	} ];
-	$scope.level = $scope.levels[1];
+	$scope.level1 = $scope.levels[1];
+	$scope.level2 = $scope.levels[1];
+	$scope.level3 = $scope.levels[1];
+	$scope.level4 = $scope.levels[1];
+	$scope.level5 = $scope.levels[1];
 }
 
 function HistoryCtrl($scope, $http) {
