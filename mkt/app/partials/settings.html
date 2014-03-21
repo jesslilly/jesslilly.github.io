@@ -1,34 +1,38 @@
 
 <div ng-include src="'partials/subheader.html'"></div>
 <div class="container">
-	<table class="table table-striped">
-		<thead>
-			<tr>
-				<th>#</th>
-				<th>First Name</th>
-				<th>Last Name</th>
-				<th>Username</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr>
-				<td>1</td>
-				<td>Mark</td>
-				<td>Otto</td>
-				<td>@mdo</td>
-			</tr>
-			<tr>
-				<td>2</td>
-				<td>Jacob</td>
-				<td>Thornton</td>
-				<td>@fat</td>
-			</tr>
-			<tr>
-				<td>3</td>
-				<td>Larry</td>
-				<td>the Bird</td>
-				<td>@twitter</td>
-			</tr>
-		</tbody>
-	</table>
+	<br />
+	<h1>Settings</h1>
+	<p>Enable and enhance your settings.</p>
+	<hr />
+	<form class="form-horizontal" role="form">
+		<h2>{{settings.Web.setting}}</h2>
+		<label>Enabled</label> <input type="checkbox"
+			ng-model="settings.Web.enabled"> <label>Level</label> <select
+			ng-model="level" ng-options="c.name for c in levels"></select>
+
+		<h2>{{settings.Analytics.setting}}</h2>
+		<label>Enabled</label> <input type="checkbox"
+			ng-model="settings.Analytics.enabled"> <label>Level</label> <select
+			ng-model="level" ng-options="c.name for c in levels"></select>
+
+		<h2>{{settings.CustomerRelations.setting}}</h2>
+		<label>Enabled</label> <input type="checkbox"
+			ng-model="settings.CustomerRelations.enabled"> <label>Level</label>
+		<select ng-model="level" ng-options="c.name for c in levels"></select>
+
+		<h2>{{settings.Reporting.setting}}</h2>
+		<label>Enabled</label> <input type="checkbox"
+			ng-model="settings.Reporting.enabled"> <label>Level</label> <select
+			ng-model="level" ng-options="c.name for c in levels"></select>
+
+		<h2>{{settings.Ads.setting}}</h2>
+		<label>Enabled</label> <input type="checkbox"
+			ng-model="settings.Ads.enabled"> <label>Level</label> <select
+			ng-model="level" ng-options="c.name for c in levels"></select> <label
+			class="control-label" for="ads-provider">Provider:</label><select
+			id="ads-provider" ng-model="provider"
+			ng-options="c.name for c in providers"></select>
+	</form>
+
 </div>

@@ -12,7 +12,7 @@ angular.module(
 			});
 			$routeProvider.when('/settings', {
 				templateUrl : 'partials/settings.html',
-				controller : 'MyCtrl1'
+				controller : 'SettingsCtrl'
 			});
 			$routeProvider.when('/history', {
 				templateUrl : 'partials/history.html',

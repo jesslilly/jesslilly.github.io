@@ -1,0 +1,23 @@
+{ "Web" : {
+	"setting" : "Web",
+	"enabled" : true,
+	"level" : "basic"
+},
+"Analytics" : {
+	"setting" : "Analytics",
+	"enabled" : true,
+	"level" : "deluxe"
+},"CustomerRelations": {
+	"setting" : "Customer Relations",
+	"enabled" : true,
+	"level" : "basic"
+}, "Reporting": {
+	"setting" : "Reporting",
+	"enabled" : false,
+	"level" : "basic"
+}, "Ads": {
+	"setting" : "Ads",
+	"enabled" : false,
+	"level" : "basic",
+	"provider" : "adSense"
+} }
