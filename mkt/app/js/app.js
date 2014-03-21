@@ -20,7 +20,7 @@ angular.module(
 			});
 			$routeProvider.when('/faq', {
 				templateUrl : 'partials/faq.html',
-				controller : 'MyCtrl3'
+				controller : 'MyCtrl1'
 			});
 			$routeProvider.otherwise({
 				redirectTo : '/view1'
