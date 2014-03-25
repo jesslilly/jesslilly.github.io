@@ -16,18 +16,25 @@
 			</div>
 		</div>
 		<div class="form-group">
-			<label class="control-label col-sm-6">About how many hours
-				are they on each day?</label>
+			<label class="control-label col-sm-6">On average, how long
+				hours are they on each day (hours)?</label>
 			<div class="col-sm-6">
 				<input type="number" placeholder="Number of hours"
 					ng-model="numHoursOn">
 			</div>
 		</div>
 		<div class="form-group">
-			<label class="control-label col-sm-6">What is your energy
-				cost? ($/hr)*</label>
+			<label class="control-label col-sm-6">Incandescent cost per
+				year ($/yr)*</label>
 			<div class="col-sm-6">
-				<input type="text" ng-model="elecDollarsPerHour">
+				<input type="number" ng-model="oldCostPerYr">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="control-label col-sm-6">CFL cost per year
+				($/yr)*</label>
+			<div class="col-sm-6">
+				<input type="number" ng-model="cflCostPerYr">
 			</div>
 		</div>
 		<div class="form-group">
@@ -41,24 +48,35 @@
 				($)</label>
 			<div class="col-sm-6">
 				<input type="number" readonly="true"
-					value="{{numOldBulbs*cflDollarPrice}}">
+					value="{{(numOldBulbs*cflDollarPrice).toFixed(2)}}">
 			</div>
 		</div>
 		<div class="form-group">
 			<label class="control-label col-sm-6">Amount saved in one
-				week.</label>
+				year. ($) </label>
 			<div class="col-sm-6">
-				<input type="number" readonly="true"
-					value="{{numOldBulbs*(numHoursOn/24)*elecDollarsPerHour*24*7}}">
+				<!-- Be careful!  This calculation is duplicated! -->
+				<span class="label label-success">
+					${{(numOldBulbs*(numHoursOn/24)*(oldCostPerYr-cflCostPerYr)).toFixed(2)}}
+					&#10004;</span>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="control-label col-sm-6">Days to recover cost.
+				($) </label>
+			<div class="col-sm-6">
+				<!-- Be careful!  This calculation is duplicated! -->
+				<span class="label label-success">
+					{{((numOldBulbs*cflDollarPrice)/(numOldBulbs*(numHoursOn/24)*(oldCostPerYr-cflCostPerYr))*365).toFixed(2)}}
+					&#10004;</span>
 			</div>
 		</div>
 
 		<p>
-			* "For example, a 60-watt incandescent light bulb draws more than
-			$300 worth of electricity per year and provides about 800 lumens of
-			light; an equivalent compact fluorescent uses less than 15 watts and
-			costs only about $75 of electricity per year" - <a
-				href="http://electronics.howstuffworks.com/led4.htm">HowStuffWorks.com</a>
+			* Average yearly cost to run operate an incandescent light bulb:
+			$4.80. Average yearly cost to operate a compact fluorescent light
+			bulb $1.75 - <a
+				href="http://www.statisticbrain.com/light-bulb-statistics/">statisticbrain.com</a>
 		</p>
 	</form>
 </div>

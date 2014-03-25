@@ -11,6 +11,6 @@ angular.module(
 				controller : 'CalcCtrl'
 			});
 			$routeProvider.otherwise({
-				redirectTo : '/view1'
+				redirectTo : '/calc'
 			});
 		} ]);
