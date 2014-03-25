@@ -1,0 +1,64 @@
+
+<div class="jumbotron container">
+	<h1>CFL Light Bulb Calculator</h1>
+	<p>Measure your savings for converting to Compact Fluorescent Light
+		bulbs (CFL's).</p>
+</div>
+
+<div class="container">
+	<form class="form-horizontal" role="form">
+		<div class="form-group">
+			<label class="control-label col-sm-6">How many incandescent
+				bulbs do you have?</label>
+			<div class="col-sm-6">
+				<input type="number" placeholder="Number of old bulbs"
+					ng-model="numOldBulbs">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="control-label col-sm-6">About how many hours
+				are they on each day?</label>
+			<div class="col-sm-6">
+				<input type="number" placeholder="Number of hours"
+					ng-model="numHoursOn">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="control-label col-sm-6">What is your energy
+				cost? ($/hr)*</label>
+			<div class="col-sm-6">
+				<input type="text" ng-model="elecDollarsPerHour">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="control-label col-sm-6">CFL Price ($)</label>
+			<div class="col-sm-6">
+				<input type="number" ng-model="cflDollarPrice">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="control-label col-sm-6">Cost to replace bulbs
+				($)</label>
+			<div class="col-sm-6">
+				<input type="number" readonly="true"
+					value="{{numOldBulbs*cflDollarPrice}}">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="control-label col-sm-6">Amount saved in one
+				week.</label>
+			<div class="col-sm-6">
+				<input type="number" readonly="true"
+					value="{{numOldBulbs*(numHoursOn/24)*elecDollarsPerHour*24*7}}">
+			</div>
+		</div>
+
+		<p>
+			* "For example, a 60-watt incandescent light bulb draws more than
+			$300 worth of electricity per year and provides about 800 lumens of
+			light; an equivalent compact fluorescent uses less than 15 watts and
+			costs only about $75 of electricity per year" - <a
+				href="http://electronics.howstuffworks.com/led4.htm">HowStuffWorks.com</a>
+		</p>
+	</form>
+</div>
