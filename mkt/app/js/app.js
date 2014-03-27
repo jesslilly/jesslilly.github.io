@@ -23,6 +23,6 @@ angular.module(
 				controller : 'MyCtrl1'
 			});
 			$routeProvider.otherwise({
-				redirectTo : '/view1'
+				redirectTo : '/hello'
 			});
 		} ]);
