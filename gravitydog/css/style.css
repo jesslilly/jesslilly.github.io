@@ -1,0 +1,78 @@
+.nomargin {
+	margin: 0px 0px 0px 0px;
+}
+
+.invisible {
+	display: none;
+}
+
+.content {
+	height: 100%;
+    width: 100%;
+    text-align: center;
+}
+
+/* http://stackoverflow.com/questions/7615009/disable-interpolation-when-scaling-a-canvas */
+.pixelated {
+	image-rendering: optimizeSpeed; /* Older versions of FF */
+	image-rendering: -moz-crisp-edges; /* FF 6.0+ */
+	image-rendering: -webkit-optimize-contrast; /* Webkit */
+	/*  (Safari now, Chrome soon) */
+	image-rendering: -o-crisp-edges; /* OS X & Windows Opera (12.02+) */
+	image-rendering: optimize-contrast; /* Possible future browsers. */
+	-ms-interpolation-mode: nearest-neighbor; /* IE */
+}
+
+/* Begin RWD */
+@media screen and (orientation: portrait) {
+	.flow {
+		display: block;
+	    width: 100%;
+	}
+    .spacer {
+        height: 3%;
+    }
+    .ad {
+        height: 30%;        
+    }
+}
+
+@media screen and (orientation: landscape) {
+	.flow {
+	    height: 100%;
+	}
+    .game {
+        float: left;
+    }
+    .spacer {
+        display: inline;
+	    width: 2%;
+    }
+    .ad {
+        float: right;  
+	    width: 30%;     
+    }
+}
+/* End RWD */
+
+/* http://www.fontsquirrel.com/fonts/Silkscreen */
+@font-face {
+	font-family: 'silkscreennormal';
+	src: url('slkscr-webfont.eot');
+	src: url('slkscr-webfont.eot?#iefix') format('embedded-opentype'),
+		url('slkscr-webfont.woff') format('woff'), url('slkscr-webfont.ttf')
+		format('truetype'), url('slkscr-webfont.svg#silkscreennormal')
+		format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+/* Prevent text selection */
+/* http://stackoverflow.com/questions/880512/prevent-text-selection-after-double-click */
+/* http://stackoverflow.com/questions/7018324/how-do-i-stop-highlighting-of-a-div-element-when-double-clicking-on */
+.no-text-select {
+	-webkit-user-select: none; /* webkit (safari, chrome) browsers */
+	-moz-user-select: none; /* mozilla browsers */
+	-khtml-user-select: none; /* webkit (konqueror) browsers */
+	-ms-user-select: none; /* IE10+ */
+}
