@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width">
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.19.0/dist/phaser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
+</head>
+<body>
+
+    <script>
+    class TitleScene extends Phaser.Scene {
+        constructor() {
+            super({key:'TitleScene', active: true});
+        }
+        preload () {
+            // TODO rename all assets to be same as variable name... :D
+            this.load.image('thePixieChord', 'assets/thePixieChord.png');
+            this.load.spritesheet('pets1', 'assets/pets1.png', { frameWidth: 16, frameHeight: 16 });
+        }
+        create() {
+            // TODO get canvas size.
+            var rect = new Phaser.Geom.Rectangle(0, 0, 450, 800);
+            var background = this.add.graphics({ fillStyle: { color: 0x444444 } });
+            background.fillRectShape(rect);
+
+            this.add.text(0, 0, 'The Pixie Chord\nピクシーコード\nPikushīkōdo', { fill: '#fff' })
+                .setFontSize(36);
+
+            this.add.image(0, 100, 'thePixieChord').setOrigin(0, 0)
+                .setScale(12);
+
+            this.add.text(0, 700, 'New Game\n新しいゲーム\nAtarashī gēmu', { fill: '#fff' })
+                .setFontSize(20)
+                .setInteractive()
+                // TODO better way to change scenes.
+                .on('pointerdown', () => this.scene.sendToBack() );
+        }
+    }
+    class HowToPlayScene extends Phaser.Scene {
+        constructor() {
+            super({key:'HowToPlayScene', active: true});
+        }
+        create() {
+            var rect = new Phaser.Geom.Rectangle(0, 0, 450, 800);
+            var background = this.add.graphics({ fillStyle: { color: 0x001100 } });
+            background.fillRectShape(rect);
+
+            this.add.text(0, 0, 'How to play\n遊び方\nAsobikata', { fill: '#fff' })
+                .setFontSize(36);
+
+            this.add.text(0, 200, 'Walk around.\n歩き回る\nArukimawaru', { fill: '#fff' })
+                .setFontSize(20);
+            this.add.text(50, 270, 'Play music.\n音楽を再生\nOngaku o saisei', { fill: '#fff' })
+                .setFontSize(20);
+            this.add.text(100, 340, 'Collect pets.\nペットを集める\nPetto o atsumeru', { fill: '#fff' })
+                .setFontSize(20);
+
+            this.add.text(250, 700, 'Next\n次\nTsugi', { fill: '#fff' })
+                .setFontSize(20)
+                .setInteractive()
+                // TODO better way to change scenes.
+                .on('pointerdown', () => this.scene.sendToBack() );
+        }
+    }
+    class CatchPetsScene extends Phaser.Scene {
+        constructor() {
+            super({key:'CatchPetsScene', active: true});
+            // TODO How to declare member var in a class?
+            this.keys = [4];
+            this.notesPlayed = "";
+            this.notesPlayedText;
+        }
+        preload () {
+            this.load.spritesheet('catchPet', 'assets/catchPet.png', { frameWidth: 16, frameHeight: 16 });
+        }
+        create() {
+            var rect = new Phaser.Geom.Rectangle(0, 0, 450, 800);
+            var background = this.add.graphics({ fillStyle: { color: 0xeeeeee } });
+            background.fillRectShape(rect);
+
+            var bubble = this.add.sprite(this.game.canvas.width / 2, this.game.canvas.height / 2, 'catchPet')
+                .setFrame([0]).setInteractive()
+                .setScale(3);
+
+            var note = this.add.sprite(this.game.canvas.width / 2, this.game.canvas.height * 5/8, 'catchPet')
+                .setFrame([1]).setInteractive()
+                .setScale(3);
+
+            this.notesPlayedText = this.add.text(this.game.canvas.width / 3, this.game.canvas.height * 6/8, "Tap buttons", { fill: '#000' })
+                .setFontSize(24);
+
+            this.addKey(0, this.game.canvas.width * 1/5, this.game.canvas.height * 7/8, "F");
+            this.addKey(1, this.game.canvas.width * 2/5, this.game.canvas.height * 7/8, "A");
+            this.addKey(2, this.game.canvas.width * 3/5, this.game.canvas.height * 7/8, "C");
+            this.addKey(3, this.game.canvas.width * 4/5, this.game.canvas.height * 7/8, "F");
+        }
+        addKey(index, x, y, label) {
+            this.keys[index] = this.add.sprite(x, y, 'catchPet')
+                .setFrame([2]).setInteractive()
+                .on('pointerdown', () => this.keyPress(index) )
+                .setScale(3);
+            var text = this.add.text(x - 6, y - 8, label, { fill: '#000' })
+                .setFontSize(20);
+            this.keys[index].text = text;
+            this.keys[index].label = label;
+            return this.keys[index];
+        }
+        keyPress(index) {
+            console.log("keyPress " + index + " lebel " + this.keys[index].label);
+            this.notesPlayed = this.notesPlayed + this.keys[index].label;
+            this.notesPlayedText.text = this.notesPlayed;
+        }
+    }
+
+    var config = {
+        type: Phaser.AUTO,
+        pixelArt: true, // Prevents image anti-alias when scaling up.  Also messes up default font.
+        // I could reduce the game size and user ScaleManger to zoom in.  BTW, zoom is not a real config setting.  
+        width: 450, // 9*50 = 450
+        height: 800, // 16*50 = 800
+        physics: {
+            default: 'arcade',
+            arcade: {
+                gravity: { y: 200 }
+            }
+        },
+        // Order here matters.  The first scene is listed last.
+        scene: [CatchPetsScene, HowToPlayScene, TitleScene]
+    };
+
+    var game = new Phaser.Game(config);
+
+    </script>
+
+</body>
+</html>
