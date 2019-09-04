@@ -19,7 +19,6 @@
         preload () {
             // TODO rename all assets to be same as variable name... :D
             this.load.image('thePixieChord', 'assets/thePixieChord.png');
-            this.load.spritesheet('pets1', 'assets/pets1.png', { frameWidth: 16, frameHeight: 16 });
         }
         create() {
             // TODO get canvas size.
@@ -124,134 +123,162 @@
             this.notesPlayed = this.notesPlayed + this.pianoKeys[index].label;
             this.notesPlayedText.text = this.notesPlayed;
             if (this.notesPlayed.length >= 4) {
-                console.log("Summon pet");
                 
+                var petIndex = this.notesPlayed.length;
+                var petName = window.pets[petIndex].name;
+
+                console.log("Summon petIndex " + petIndex + " name " + petName);
+
                 var bubble = this.add.sprite(this.game.canvas.width / 2, this.game.canvas.height / 2, 'petsX16')
-                    .setFrame([this.notesPlayed.length]).setInteractive()
+                    .setFrame([petIndex]).setInteractive()
                     .setScale(3);
+
+                this.notesPlayedText.text = petName;
             }
         }
     }
 
-    var pets = [
-        { name: "Mr. Who Knows", composerId: 1 },
-        { name: "Money Man", composerId: 1 },
-        { name: "Mr. Wormhole", composerId: 1 },
-        { name: "Herp Derp", composerId: 1 },
-        { name: "Ninja Waffle", composerId: 1 },
-        { name: "Mr. Happy", composerId: 1 },
-        //
-        { name: "Lightning Guy", composerId: 1 },
-        { name: "Mr. Muffin", composerId: 1 },
-        { name: "Weird Moana Wave", composerId: 1 },
-        { name: "Poetion", composerId: 1 },
-        { name: "Shakey", composerId: 1 },
-        { name: "Glowy Kittie", composerId: 1 },
-        // { name: "Moos`e", composerId: 2 },
-        // { name: "Squog", composerId: 2 },
-        { name: "Achoo!", composerId: 2 },
-        { name: "THE Watermelon", composerId: 2 },
-        { name: "Abe Lincoln Hat", composerId: 2 },
-        { name: "Roundoso ", composerId: 2 },
-        { name: "Dr. Witchy Joe", composerId: 3 },
-        { name: "Bobby Joe ", composerId: 3 },
-        { name: "Selly Joe", composerId: 3 },
-        //
-        { name: "Peet Limuh", composerId: 6 },
-        { name: "N-Type", composerId: 6 },
-        { name: "Hovering Mookauk ", composerId: 7 },
-        { name: "Mookauk", composerId: 7 },
-        { name: "Mr. Stinker", composerId: 8 },
-        { name: "Manstein ", composerId: 8 },
-        //
-        { name: "Hot dog", composerId: 1 },
-        { name: "Mr. Sundae", composerId: 1 },
-        { name: "Random Dude", composerId: 1 },
-        { name: "Mouse in a Bottle", composerId: 1 },
-        { name: "Scriblins ", composerId: 1 },
-        { name: "Derpy Hammer", composerId: 1 },
-        //
-        { name: "Randall Elf", composerId: 12 },
-        { name: "Moana", composerId: 12 },
-        { name: "JEFFREY", composerId: 12 },
-        { name: "MIZZ KITTEH", composerId: 12 },
-        { name: "RICHARD", composerId: 12 },
-        { name: "RACHEL", composerId: 12 },
-        //
-        { name: "Twindle", composerId: 13 },
-        { name: "Balloon Maestro ", composerId: 13 },
-        { name: "Fancy Nance", composerId: 13 },
-        { name: "Pineapple Jimmy", composerId: 13 },
-        { name: "Sprizter", composerId: 13 },
-        { name: "Yogurt", composerId: 13 },
-        //
-        { name: "Dr. Weird", composerId: 10 },
-        { name: "Mr. McWiggles", composerId: 10 },
-        { name: "Mr. Blob", composerId: 10 },
-        { name: "Mrs. Blob", composerId: 10 },
-        { name: "Cubie ", composerId: 10 },
-        { name: "Mr. Mutant", composerId: 10 },
-        //
-        { name: "Mitty Merfow", composerId: 3 },
-        { name: "Jelly Jelloo", composerId: 3 },
-        { name: "Thâ€™nana", composerId: 3 },
-        { name: "Crazy-nazy ", composerId: 3 },
-        { name: "Bobomoo ", composerId: 3 },
-        { name: "Gaga ", composerId: 3 },
-        { name: "Â¥XJÄ™RBÂ¡'Å‚Ä¯Ã¸Ã¦ÃŸÄ", composerId: 3 },
-        { name: "Baby Mister", composerId: 4 },
-        { name: "Mighty Footer", composerId: 4 },
-        { name: "Nolr ", composerId: 4 },
-        { name: "Smix ", composerId: 4 },
-        { name: "Duckduck ", composerId: 4 },
-        { name: "Madam Moser", composerId: 4 },
-        { name: "Blubble Blobble", composerId: 5 },
-        { name: "CABC", composerId: 5 },
-        { name: "Mr. Zezo", composerId: 5 },
-        { name: "Blankoot", composerId: 5 },
-        { name: "Apoo Sauce", composerId: 5 },
-        { name: "Mooky Pucky", composerId: 6 },
-        { name: "Meep Zorp!", composerId: 6 },
-        { name: "Oxion-o", composerId: 6 },
-        { name: "Mini-pic", composerId: 6 },
-        { name: "Mr. Haedayse ", composerId: 8 },
-        { name: "Mrs. Fluffy", composerId: 8 },
-        { name: "Mr. Mr.", composerId: 8 },
-        { name: "Smoker", composerId: 8 },
-        { name: "Pook ", composerId: 7 },
-        { name: "Robozoid", composerId: 11 },
-        { name: "Poochkin", composerId: 11 },
-        { name: "Oofouwch", composerId: 3 },
-        { name: "Arhgy ", composerId: 3 },
-        { name: "Mbando", composerId: 3 },
-        { name: "Mr. Potato Sack", composerId: 3 },
-        { name: "Kyeeno ", composerId: 3 },
-        { name: "Vramselder ", composerId: 3 },
-        { name: "Glober", composerId: 9 },
-        { name: "Glanuf ", composerId: 9 },
-        { name: "Nuggle ", composerId: 9 },
-        { name: "Thernifuh", composerId: 9 },
-        { name: "Jelber ", composerId: 9 },
-        { name: "Shentuh ", composerId: 9 },
-        { name: "Hapfo", composerId: 3 },
-        { name: "Duck", composerId: 3 },
-        { name: "Rrakerfunshuck", composerId: 3 },
-        { name: "Twister", composerId: 3 },
-        { name: "Mr. Shapership", composerId: 3 },
-        { name: "Treeman", composerId: 3 },
-        { name: "Burning Tails", composerId: 3 },
-        { name: "Unone ", composerId: 3 },
-        { name: "Kegando", composerId: 6 },
-        { name: "Invisi-pic", composerId: 6 },
-        { name: "Biv", composerId: 6 },
-        { name: "Crabic ", composerId: 6 },
-        { name: "Gondo ", composerId: 6 },
-        { name: "Bubble", composerId: 14 },
-        { name: "Penguin", composerId: 14 },
-        { name: "Crontab", composerId: 14 },
-        { name: "Transistor", composerId: 14 },
-        { name: "Wormy", composerId: 14 },
-    ]
+    var pets = {
+        petsX16: [
+            { name: "Mr. Who Knows", composerId: 1 },
+            { name: "Money Man", composerId: 1 },
+            { name: "Mr. Wormhole", composerId: 1 },
+            { name: "Herp Derp", composerId: 1 },
+            { name: "Ninja Waffle", composerId: 1 },
+            { name: "Mr. Happy", composerId: 1 },
+            //
+            { name: "Lightning Guy", composerId: 1 },
+            { name: "Mr. Muffin", composerId: 1 },
+            { name: "Weird Moana Wave", composerId: 1 },
+            { name: "Poetion", composerId: 1 },
+            { name: "Shakey", composerId: 1 },
+            { name: "Glowy Kittie", composerId: 1 },
+            //
+            { name: "Achoo!", composerId: 2 },
+            { name: "THE Watermelon", composerId: 2 },
+            { name: "Abe Lincoln Hat", composerId: 2 },
+            { name: "Roundoso ", composerId: 2 },
+            { name: "Mitty Merfow", composerId: 3 },
+            { name: "Thâ€™nana", composerId: 3 },
+            //
+            { name: "Peet Limuh", composerId: 6 },
+            { name: "N-Type", composerId: 6 },
+            { name: "Mookauk", composerId: 7 },
+            { name: "Hovering Mookauk ", composerId: 7 },
+            { name: "Mr. Stinker", composerId: 8 },
+            { name: "Manstein ", composerId: 8 },
+            //
+            { name: "Hot dog", composerId: 1 },
+            { name: "Mr. Sundae", composerId: 1 },
+            { name: "Random Dude", composerId: 1 },
+            { name: "Mouse in a Bottle", composerId: 1 },
+            { name: "Scriblins ", composerId: 1 },
+            { name: "Derpy Hammer", composerId: 1 },
+            //
+            { name: "Randall Elf", composerId: 12 },
+            { name: "Moana", composerId: 12 },
+            { name: "JEFFREY", composerId: 12 },
+            { name: "MIZZ KITTEH", composerId: 12 },
+            { name: "RICHARD", composerId: 12 },
+            { name: "RACHEL", composerId: 12 },
+            //
+            { name: "Twindle", composerId: 13 },
+            { name: "Balloon Maestro ", composerId: 13 },
+            { name: "Fancy Nance", composerId: 13 },
+            { name: "Pineapple Jimmy", composerId: 13 },
+            { name: "Sprizter", composerId: 13 },
+            { name: "Yogurt", composerId: 13 },
+            //
+            { name: "Dr. Weird", composerId: 10 },
+            { name: "Mr. McWiggles", composerId: 10 },
+            { name: "Mr. Blob", composerId: 10 },
+            { name: "Mrs. Blob", composerId: 10 },
+            { name: "Cubie ", composerId: 10 },
+            { name: "Mr. Mutant", composerId: 10 },
+            //
+            { name: "Hapfo", composerId: 3 },
+            { name: "Duck", composerId: 3 },
+            { name: "Rrakerfunshuck", composerId: 3 },
+            { name: "Twister", composerId: 3 },
+            { name: "Mr. Shapership", composerId: 3 },
+            { name: "Treeman", composerId: 3 },
+            //
+            { name: "Blubble Blobble", composerId: 5 },
+            { name: "CABC", composerId: 5 },
+            { name: "Mr. Zezo", composerId: 5 },
+            { name: "Blankoot", composerId: 5 },
+            { name: "Wormy", composerId: 5 },
+            { name: "Apoo Sauce", composerId: 5 },
+            //
+            { name: "Smoker", composerId: 8 },
+            { name: "Nuggle ", composerId: 9 },
+            { name: "Thernifuh", composerId: 9 },
+            { name: "Shentuh ", composerId: 9 },
+            //
+            { name: "Crazy-nazy ", composerId: 3 },
+            { name: "Bobomoo ", composerId: 3 },
+            { name: "Gaga ", composerId: 3 },
+            { name: "Â¥XJÄ™RBÂ¡'Å‚Ä¯Ã¸Ã¦ÃŸÄ", composerId: 3 },
+            //
+            { name: "Baby Mister", composerId: 4 },
+            { name: "Mighty Footer", composerId: 4 },
+            { name: "Nolr ", composerId: 4 },
+            { name: "Smix ", composerId: 4 }
+        ],
+        petsX24: [
+            { name: "Moos`e", composerId: 2 },
+            { name: "Squog", composerId: 2 },
+            { name: "Dr. Witchy Joe", composerId: 3 },
+            { name: "Bobby Joe ", composerId: 3 },
+            { name: "Selly Joe", composerId: 3 },
+            { name: "Jelly Jelloo", composerId: 3 },
+            //
+            { name: "Mooky Pucky", composerId: 6 },
+            { name: "Meep Zorp!", composerId: 6 },
+            { name: "Oxion-o", composerId: 6 },
+            { name: "Glober", composerId: 9 },
+            { name: "Mrs. Fluffy", composerId: 8 },
+            { name: "Mr. Haedayse ", composerId: 8 },
+            //
+            { name: "Glanuf ", composerId: 9 },
+            { name: "Jelber ", composerId: 9 },
+            { name: "Burning Tails", composerId: 3 },
+            { name: "Poochkin", composerId: 11 },
+            { name: "Robozoid", composerId: 11 },
+            ],
+        petsX8: [
+            { name: "Mini-pic", composerId: 6 },
+            { name: "Kegando", composerId: 6 },
+            { name: "Invisi-pic", composerId: 6 },
+            { name: "Biv", composerId: 6 },
+            { name: "Crabic ", composerId: 6 },
+            { name: "Gondo ", composerId: 6 },
+            { name: "Oofouwch", composerId: 3 },
+            { name: "Arhgy ", composerId: 3 },
+            { name: "Mbando", composerId: 3 },
+            { name: "Mr. Potato Sack", composerId: 3 },
+            { name: "Kyeeno ", composerId: 3 },
+            { name: "Vramselder ", composerId: 3 },
+            ]
+        }
+
+    var composers = [
+        "No one. Because arrays start at zero and composerId starts at 1.",
+        "Joe, Caller of Beasts",
+        "Rosie",
+        "D.J. Doctor Jimian Junior",
+        "Wilma 'The Phenomenon'",
+        "Miranin",
+        "Jessemon Galacticon",
+        "AMoose",
+        "Bademo",
+        "Nootch the Awesome",
+        "Ace",
+        "Sam",
+        "Raekel",
+        "Teelorj",
+        "Ezra, Hero of Pickles",
+    ];
 
     var config = {
         type: Phaser.AUTO,
