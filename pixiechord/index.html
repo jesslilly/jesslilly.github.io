@@ -8,6 +8,7 @@
     <title>Pixie Chord</title>
     <script src="//cdn.jsdelivr.net/npm/phaser@3.19.0/dist/phaser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
+    <style>body {margin: 0;}</style>
 </head>
 <body>
 
@@ -174,28 +175,71 @@
         // This is a good method to unit test b/c all of the inputs are defined.
         getPetIndex (latitude, longitude, dateTime, notesPlayed, bagPets) {
 
-            var lat10 = 0;
-            if (latitude != null) {
-                // https://gis.stackexchange.com/questions/142326/calculating-longitude-length-in-miles
-                // Each degree of latitude is approximately 69 miles (111 kilometers) apart.
-                // At 40° north or south the distance between a degree of longitude is 53 miles (85 km)
-                // ----------------------
-                // 1 lat = 69 m
-                // 1/10 = .1 lat = 6.9 m
-                // 1/100 = .01 lat = .69 m
-                // 1/300 = .0033 lat = .23 m
-                // 44.466166 - 44.462988 = 0.003177 = ~ .25 m (1/4 mile)
-                // With 300 (and an extra 10 so I can mod 10), I can break up a quarter mile into 10 sections!
-                lat10 = latitude * 3000 % 10;
-                lat10 = Math.abs(Math.floor(lat10));                
+            var lat10 = this.toQuarterMileIncrement(latitude, 10);
+            var lon10 = this.toQuarterMileIncrement(longitude, 10);
+
+            var petIndex = 0;
+
+            if (Math.random() > .5) {
+                petIndex = this.getEsCommon(lon10);
             }
             else {
-                lat10 = this.getRandomInt(10); // 0-9;
+                petIndex = this.getNsCommon(lat10);
             }
-            
-            return 0 + lat10;
-        }
 
+            return petIndex;
+        }
+        getNsCommon(lat10) {
+            switch (lat10) {
+                case 0: return 5; // Mr. Happy
+                case 1: return 2; // Mr. Wormhole
+                case 2: return 20; // Mookauk
+                case 3: return 17; // Th'nana
+                case 4: return 31; // Moana
+                case 5: return 46; // Cubie
+                case 6: return 48; // Hapfo
+                case 7: return 58; // Wormy
+                case 8: return 61; // Nuggle
+                case 9: return 0; // lava!!!!!!!!!!!!!!!!!!!
+            }
+        }
+        getEsCommon(lon10) {
+            switch (lon10) {
+                case 0: return 62; // Thernifuh
+                case 1: return 66; // Gaga
+                case 2: return 54; // Blubble Blobble
+                case 3: return 41; // Yogurt
+                case 4: return 15; // Roundoso
+                case 5: return 60; // Smoker
+                case 6: return 43; // Mr. McWiggles
+                case 7: return 69; // Mighty Footer
+                case 8: return 49; // Duck
+                case 9: return 0; // lava!!!!!!!!!!!!!!!!!!!
+            }
+        }
+        toQuarterMileIncrement(geocoord, increments) {
+            // Normally increments is 10.
+
+            // https://gis.stackexchange.com/questions/142326/calculating-longitude-length-in-miles
+            // Each degree of latitude is approximately 69 miles (111 kilometers) apart.
+            // At 40° north or south the distance between a degree of longitude is 53 miles (85 km)
+            // ----------------------
+            // 1 lat = 69 m
+            // 1/10 = .1 lat = 6.9 m
+            // 1/100 = .01 lat = .69 m
+            // 1/300 = .0033 lat = .23 m
+            // 44.466166 - 44.462988 = 0.003177 = ~ .25 m (1/4 mile)
+            // With 300 (and an extra 10 so I can mod 10), I can break up a quarter mile into 10 sections!
+            var geo10 = 0;
+            if (geocoord != null) {
+                geo10 = geocoord * 3000 % increments;
+                geo10 = Math.abs(Math.floor(geo10));                
+            }
+            else {
+                geo10 = this.getRandomInt(10); // 0-9;
+            }
+            return geo10;
+        }
         getRandomInt(max) {
             return Math.floor(Math.random() * Math.floor(max));
         }
@@ -221,7 +265,7 @@
         { name: "Abe Lincoln Hat", composerId: 2, spritesheetName: 'petsX16', spritesheetFrame: 14 },
         { name: "Roundoso ", composerId: 2, spritesheetName: 'petsX16', spritesheetFrame: 15 },
         { name: "Mitty Merfow", composerId: 3, spritesheetName: 'petsX16', spritesheetFrame: 16 },
-        { name: "Thâ€™nana", composerId: 3, spritesheetName: 'petsX16', spritesheetFrame: 17 },
+        { name: "Th'nana", composerId: 3, spritesheetName: 'petsX16', spritesheetFrame: 17 },
         //
         { name: "Peet Limuh", composerId: 6, spritesheetName: 'petsX16', spritesheetFrame: 18 },
         { name: "N-Type", composerId: 6, spritesheetName: 'petsX16', spritesheetFrame: 19 },
