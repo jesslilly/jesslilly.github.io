@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
     <title>Pixie Chord</title>
     <script src="//cdn.jsdelivr.net/npm/phaser@3.19.0/dist/phaser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
@@ -18,12 +18,10 @@
             super({key:'TitleScene', active: true});
         }
         preload () {
-            // TODO rename all assets to be same as variable name... :D
             this.load.image('thePixieChord', 'assets/thePixieChord.png');
         }
         create() {
-            // TODO get canvas size.
-            var rect = new Phaser.Geom.Rectangle(0, 0, 450, 800);
+            var rect = new Phaser.Geom.Rectangle(0, 0, this.game.canvas.width, this.game.canvas.height);
             var background = this.add.graphics({ fillStyle: { color: 0x444444 } });
             background.fillRectShape(rect);
 
@@ -33,7 +31,7 @@
             this.add.image(0, 100, 'thePixieChord').setOrigin(0, 0)
                 .setScale(12);
 
-            this.add.text(0, 700, 'New Game\n新しいゲーム\nAtarashī gēmu', { fill: '#fff' })
+            this.add.text(20, 600, 'New Game\n新しいゲーム\nAtarashī gēmu', { fill: '#fff' })
                 .setFontSize(20)
                 .setInteractive()
                 // TODO better way to change scenes.
@@ -45,7 +43,7 @@
             super({key:'HowToPlayScene', active: true});
         }
         create() {
-            var rect = new Phaser.Geom.Rectangle(0, 0, 450, 800);
+            var rect = new Phaser.Geom.Rectangle(0, 0, this.game.canvas.width, this.game.canvas.height);
             var background = this.add.graphics({ fillStyle: { color: 0x001100 } });
             background.fillRectShape(rect);
 
@@ -54,12 +52,12 @@
 
             this.add.text(0, 200, 'Walk around.\n歩き回る\nArukimawaru', { fill: '#fff' })
                 .setFontSize(20);
-            this.add.text(50, 270, 'Play music.\n音楽を再生\nOngaku o saisei', { fill: '#fff' })
+            this.add.text(60, 280, 'Play music.\n音楽を再生\nOngaku o saisei', { fill: '#fff' })
                 .setFontSize(20);
-            this.add.text(100, 340, 'Collect pets.\nペットを集める\nPetto o atsumeru', { fill: '#fff' })
+            this.add.text(120, 360, 'Collect pets.\nペットを集める\nPetto o atsumeru', { fill: '#fff' })
                 .setFontSize(20);
 
-            this.add.text(250, 700, 'Next\n次\nTsugi', { fill: '#fff' })
+            this.add.text(250, 600, 'Next\n次\nTsugi', { fill: '#fff' })
                 .setFontSize(20)
                 .setInteractive()
                 // TODO better way to change scenes.
@@ -69,10 +67,11 @@
     class CatchPetsScene extends Phaser.Scene {
         constructor() {
             super({key:'CatchPetsScene', active: true});
-            // TODO How to declare member var in a class?
             this.pianoKeys = [4];
-            this.notesPlayed = "";
             this.notesPlayedText;
+            this.petNameText;
+            this.bubble;
+            this.petSprite
         }
         preload () {
             this.load.spritesheet('catchPet', 'assets/catchPet.png', { frameWidth: 16, frameHeight: 16 });
@@ -81,28 +80,35 @@
             this.load.spritesheet('petsX8', 'assets/petsX8.png', { frameWidth: 8, frameHeight: 8 });
         }
         create() {
-            var rect = new Phaser.Geom.Rectangle(0, 0, 450, 800);
+            var rect = new Phaser.Geom.Rectangle(0, 0, this.game.canvas.width, this.game.canvas.height);
             var background = this.add.graphics({ fillStyle: { color: 0xeeeeee } });
             background.fillRectShape(rect);
             
-            this.add.text(20, 20, 'Menu\nxxx\nmen00', { fill: '#000' })
+            this.add.text(20, 80, 'Menu\nメニュー\nMenyū', { fill: '#000' })
                 .setFontSize(20)
                 .setInteractive()
                 // TODO better way to change scenes.
                 .on('pointerdown', () => {
                     this.scene.sendToBack(); 
-                    this.notesPlayed = ""; 
+                    this.reset();
                 });
 
-            var bubble = this.add.sprite(this.game.canvas.width / 2, this.game.canvas.height / 2, 'catchPet')
+            var bag = this.add.sprite(this.game.canvas.width * .8, this.game.canvas.height * .1, 'catchPet')
+                .setFrame([3]).setInteractive()
+                .setScale(2);
+
+            this.petNameText = this.add.text(this.game.canvas.width * .15, this.game.canvas.height * .33, "", { fill: '#000' })
+                .setFontSize(36);
+
+            this.bubble = this.add.sprite(this.game.canvas.width * .50, this.game.canvas.height * .50, 'catchPet')
                 .setFrame([0]).setInteractive()
                 .setScale(3);
 
-            var note = this.add.sprite(this.game.canvas.width / 2, this.game.canvas.height * 5/8, 'catchPet')
+            var note = this.add.sprite(this.game.canvas.width * .50, this.game.canvas.height * .60, 'catchPet')
                 .setFrame([1]).setInteractive()
                 .setScale(3);
 
-            this.notesPlayedText = this.add.text(this.game.canvas.width / 3, this.game.canvas.height * 6/8, "Tap\nbuttons", { fill: '#000' })
+            this.notesPlayedText = this.add.text(this.game.canvas.width * .33, this.game.canvas.height * .70, "", { fill: '#000' })
                 .setFontSize(36);
 
             this.addPianoKey(0, this.game.canvas.width * 1/5, this.game.canvas.height * 7/8, "F");
@@ -123,29 +129,56 @@
         }
         onPianoKeyPress(index) {
             console.log("onPianoKeyPress " + index + " lebel " + this.pianoKeys[index].label);
-            this.notesPlayed = this.notesPlayed + this.pianoKeys[index].label;
-            this.notesPlayedText.text = this.notesPlayed;
 
-            if (this.notesPlayed.length < 4) {
+            if (this.notesPlayedText.text.length < 4) {
+                this.notesPlayedText.text = this.notesPlayedText.text + this.pianoKeys[index].label;
+            }
+            if (this.notesPlayedText.text.length != 4) {
                 return;
             }
-
             var self = this;
-            var petFactory = new PetFactory();
-            var pet = petFactory.getPet(this.notesPlayed, null, function(pet) {
-
-                // todo Pet.toString();
-                console.log("Summon pet name " + pet.name + " from sheet " + pet.spritesheetName + " @ " + pet.spritesheetFrame);
-
-                var bubble = self.add.sprite(self.game.canvas.width / 2, self.game.canvas.height / 2, pet.spritesheetName)
-                    .setFrame([pet.spritesheetFrame]).setInteractive()
-                    .setScale(6);
-
-                self.notesPlayedText.text = pet.name;
+            var encounterFactory = new EncounterFactory();
+            var pet = encounterFactory.getPet(this.notesPlayedText.text, null, function(pet) {
+                self.displayEncounter(pet);
             });
+
+        }
+        displayEncounter(pet) {            
+            this.displayPetEncounter(pet);
+        }
+        displayPetEncounter(pet) {
+
+            this.enablePianoKeys(false);
+
+            // todo Pet.toString();
+            console.log("Summon pet name " + pet.name + " from sheet " + pet.spritesheetName + " @ " + pet.spritesheetFrame);
+
+            this.bubble.setVisible(false);
+
+            this.petSprite = this.add.sprite(this.game.canvas.width * .50, this.game.canvas.height * .50, pet.spritesheetName)
+                .setFrame([pet.spritesheetFrame]).setInteractive()
+                .setScale(6);
+
+            this.petNameText.text = pet.name;
+        }
+        reset() {
+            this.enablePianoKeys(true);
+            this.notesPlayedText.text = "";
+            this.petNameText.text = "";
+            this.bubble.setVisible(true);
+            this.petSprite.setVisible(false);
+        }
+        enablePianoKeys(enabled) {
+            for (var keyIndex = 0; keyIndex < this.pianoKeys.length; keyIndex++) {
+                if (enabled) {
+                    this.pianoKeys[keyIndex].setInteractive();
+                } else{
+                    this.pianoKeys[keyIndex].disableInteractive();
+                }
+            }
         }
     }
-    class PetFactory {
+    class EncounterFactory {
         constructor() {
         }
         // A convenient wrapper for getPetIndex.
@@ -163,7 +196,7 @@
                 },function() {
                     // If geolocation fails, use a random location
                     // https://stackoverflow.com/a/3885172/1804678
-                    var petIndex = this.getPetIndex(null, null, dateTime, notesPlayed, bagPets);
+                    var petIndex = self.getPetIndex(null, null, dateTime, notesPlayed, bagPets);
                     callback(window.pets[petIndex]);
                 },{timeout:10000});
             } else {
