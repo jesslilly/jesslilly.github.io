@@ -28,6 +28,11 @@ class HowToPlayScene extends Phaser.Scene {
     create() {
         this.add.rectangle(this.game.canvas.width * .50, this.game.canvas.height * .50, this.game.canvas.width, this.game.canvas.height, 0x001100, 1);
 
+        // secret refresh
+        this.add.rectangle(this.game.canvas.width, 0, 100, 100, 0xff0000, 0)
+            .setInteractive()
+            .on('pointerdown', () => window.location.reload(true));
+
         this.add.text(0, 0, 'How to play\n遊び方\nAsobikata', { fill: '#fff' })
             .setFontSize(36);
 
@@ -53,7 +58,13 @@ class CatchPetsScene extends Phaser.Scene {
         this.petNameText;
         this.bubble;
         this.petSprite;
-        this.messageContainer;
+        this.pet; // : Pet
+
+        this.messageBackdrop;  
+        this.messageBackground;
+        this.messageText;
+        this.messageButton;
+        this.messageButtonText;
     }
     preload() {
         this.load.spritesheet('catchPet', 'assets/catchPet.png', { frameWidth: 16, frameHeight: 16 });
@@ -80,8 +91,15 @@ class CatchPetsScene extends Phaser.Scene {
             .setFontSize(36);
 
         this.bubble = this.add.sprite(this.game.canvas.width * .50, this.game.canvas.height * .50, 'catchPet')
-            .setFrame([0]).setInteractive()
+            .setFrame([0])
             .setScale(3);
+            
+        this.petSprite = this.add.sprite(this.game.canvas.width * .50, this.game.canvas.height * .50, 'petsX16')
+            .setFrame(0)
+            .setInteractive()
+            .on('pointerdown', () => this.collectPet(this.pet))
+            .setScale(6)
+            .setVisible(false);
 
         var note = this.add.sprite(this.game.canvas.width * .29, this.game.canvas.height * .72, 'catchPet')
             .setFrame([1]).setInteractive()
@@ -90,10 +108,10 @@ class CatchPetsScene extends Phaser.Scene {
         this.notesPlayedText = this.add.text(this.game.canvas.width * .33, this.game.canvas.height * .70, "", { fill: '#000' })
             .setFontSize(36);
 
-        this.addPianoKey(0, this.game.canvas.width * 1 / 5, this.game.canvas.height * .80, "F");
-        this.addPianoKey(1, this.game.canvas.width * 2 / 5, this.game.canvas.height * .80, "A");
-        this.addPianoKey(2, this.game.canvas.width * 3 / 5, this.game.canvas.height * .80, "C");
-        this.addPianoKey(3, this.game.canvas.width * 4 / 5, this.game.canvas.height * .80, "F");
+        this.createPianoKey(0, this.game.canvas.width * 1 / 5, this.game.canvas.height * .80, "F");
+        this.createPianoKey(1, this.game.canvas.width * 2 / 5, this.game.canvas.height * .80, "A");
+        this.createPianoKey(2, this.game.canvas.width * 3 / 5, this.game.canvas.height * .80, "C");
+        this.createPianoKey(3, this.game.canvas.width * 4 / 5, this.game.canvas.height * .80, "F");
 
         this.createMessagePopup();
     }
@@ -121,7 +139,7 @@ class CatchPetsScene extends Phaser.Scene {
             .setFontSize(36);
         this.toggleMessagePopup(false);
     }
-    addPianoKey(index, x, y, label) {
+    createPianoKey(index, x, y, label) {
         this.pianoKeys[index] = this.add.sprite(x, y, 'catchPet')
             .setFrame([2]).setInteractive()
             .on('pointerdown', () => this.onPianoKeyPress(index))
@@ -143,7 +161,7 @@ class CatchPetsScene extends Phaser.Scene {
         }
         var self = this;
         var encounterFactory = new EncounterFactory();
-        encounterFactory.getEncounter(this.notesPlayedText.text, window.inventory, function (encounter) {
+        encounterFactory.getEncounter(this.notesPlayedText.text, inventory, function (encounter) {
             self.displayEncounter(encounter);
         });
     }
@@ -159,21 +177,19 @@ class CatchPetsScene extends Phaser.Scene {
     }
     displayPetEncounter(encounter) {
 
-        var pet = encounter.encounteredThing;
+        // this.pet is passed into collectPet
+        this.pet = encounter.encounteredThing;
 
         this.enablePianoKeys(false);
 
-        // todo Pet.toString();
-        console.log("Summon pet name " + pet.name + " from sheet " + pet.spritesheetName + " @ " + pet.spritesheetFrame);
+        console.log("Summon " + this.pet.toString());
+
+        this.petNameText.text = this.pet.name;
 
         this.bubble.setVisible(false);
 
-        this.petSprite = this.add.sprite(this.game.canvas.width * .50, this.game.canvas.height * .50, pet.spritesheetName)
-            .setFrame([pet.spritesheetFrame]).setInteractive()
-            .on('pointerdown', () => this.collectPet(pet))
-            .setScale(6);
-
-        this.petNameText.text = pet.name;
+        this.petSprite.setFrame([this.pet.spritesheetFrame])
+            .setVisible(true);
     }
     displayMessageEncounter(encounter) {
         this.messageText.text = encounter.encounteredThing;
@@ -189,7 +205,7 @@ class CatchPetsScene extends Phaser.Scene {
     }
     collectPet(pet) {
         // TODO: Some day I may use something other than globals.  Find window.
-        window.inventory.addPet(pet);
+        inventory.addPet(pet);
         this.reset();
     }
     reset() {
@@ -215,16 +231,19 @@ class Pet {
         this.collectedDateTime = new Date();
     }
     get name() {
-        return window.petData[this.petIndex].name;
+        return petData[this.petIndex].name;
     }
     get spritesheetName() {
-        return window.petData[this.petIndex].spritesheetName;
+        return petData[this.petIndex].spritesheetName;
     }
     get spritesheetFrame() {
-        return window.petData[this.petIndex].spritesheetFrame;
+        return petData[this.petIndex].spritesheetFrame;
     }
     get composerId() {
-        return window.petData[this.petIndex].composerId;
+        return petData[this.petIndex].composerId;
+    }
+    toString() {
+        return "Pet Name " + this.name + " sheet " + this.spritesheetName + " [" + this.spritesheetFrame + "]";
     }
 }
 var EncounterType = {
@@ -277,12 +296,12 @@ class EncounterFactory {
 
         var petIndex = 0;
 
+        var coinFlip = (Math.random() > .5);
 
-        if (Math.random() > .5) {
-            petIndex = this.getEsCommon(lon10);
-        }
-        else {
-            petIndex = this.getNsCommon(lat10);
+        petIndex = this.getCommon(lat10, lon10, coinFlip);
+
+        if (this.collectedRecently(petIndex, inventory, dateTime)) {
+            petIndex = this.getCommon(lat10, lon10, !coinFlip);
         }
 
         if (this.collectedRecently(petIndex, inventory, dateTime)) {
@@ -293,11 +312,19 @@ class EncounterFactory {
         var pet = new Pet(petIndex);
         return (new Encounter(EncounterType.Pet, pet));
     }
+    getCommon(lat10, lon10, coinFlip) {
+        if (coinFlip) {
+            return this.getEsCommon(lon10);
+        }
+        else {
+            return this.getNsCommon(lat10);
+        }
+    }
     getNsCommon(lat10) {
-        return window.nsCommonData[lat10];
+        return nsCommonData[lat10];
     }
     getEsCommon(lon10) {
-        return window.esCommonData[lon10];
+        return esCommonData[lon10];
     }
     collectedRecently(petIndex, inventory, dateTime) {
         const beBackInMinutes = 15;
