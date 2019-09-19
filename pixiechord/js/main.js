@@ -6,19 +6,29 @@ class TitleScene extends Phaser.Scene {
         this.load.image('thePixieChord', 'assets/thePixieChord.png');
     }
     create() {
-        this.add.rectangle(this.game.canvas.width * .50, this.game.canvas.height * .50, this.game.canvas.width, this.game.canvas.height, 0x444444, 1);
+        this.add.rectangle(this.game.canvas.width * .50, this.game.canvas.height * .50, this.game.canvas.width, this.game.canvas.height, 0x444444, 1)
+           .setInteractive(); // to prevent click-through from one sceen to a scene behind it.
 
-        this.add.text(0, 0, 'The Pixie Chord\nピクシーコード\nPikushīkōdo', { fill: '#fff' })
+        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .05, 'The Pixie Chord\nピクシーコード\nPikushīkōdo', { fill: '#fff' })
             .setFontSize(36);
 
-        this.add.image(0, 100, 'thePixieChord').setOrigin(0, 0)
+        // I have not been using setOrigin but it should be so helpful working with text!
+        // this.add.image(0, 100, 'thePixieChord').setOrigin(0, 0)
+        //     .setScale(12);
+        
+        this.add.image(this.game.canvas.width * .50, this.game.canvas.height * .45, 'thePixieChord')
             .setScale(12);
 
-        this.add.text(20, 600, 'New Game\n新しいゲーム\nAtarashī gēmu', { fill: '#fff' })
-            .setFontSize(20)
+        this.add.rectangle(this.game.canvas.width * .25, this.game.canvas.height * .80, this.game.canvas.width *.45, this.game.canvas.height * .10, 0xff2222, 1)
             .setInteractive()
-            // TODO better way to change scenes.
-            .on('pointerdown', () => this.scene.sendToBack());
+            .on('pointerdown', () => this.scene.bringToTop('HowToPlayScene'));
+
+        this.add.text(20, 610, 'New Game\n新しいゲーム\nAtarashī gēmu', { fill: '#fff' })
+            .setFontSize(20);
+        
+        this.add.rectangle(this.game.canvas.width * .75, this.game.canvas.height * .80, this.game.canvas.width *.45, this.game.canvas.height * .10, 0x22ff22, 1)
+            .setInteractive()
+            .on('pointerdown', () => this.scene.bringToTop('HowToPlayScene'));
     }
 }
 class HowToPlayScene extends Phaser.Scene {
@@ -26,28 +36,54 @@ class HowToPlayScene extends Phaser.Scene {
         super({ key: 'HowToPlayScene', active: true });
     }
     create() {
-        this.add.rectangle(this.game.canvas.width * .50, this.game.canvas.height * .50, this.game.canvas.width, this.game.canvas.height, 0x001100, 1);
+        this.add.rectangle(this.game.canvas.width * .50, this.game.canvas.height * .50, this.game.canvas.width, this.game.canvas.height, 0x001100, 1)
+            .setInteractive(); // to prevent click-through from one sceen to a scene behind it.
 
         // secret refresh
-        this.add.rectangle(this.game.canvas.width, 0, 100, 100, 0xff0000, 0)
+        this.add.rectangle(this.game.canvas.width * .90, this.game.canvas.height * .20, this.game.canvas.width * .20, this.game.canvas.height * .40, 0xff0000, 0)
             .setInteractive()
             .on('pointerdown', () => window.location.reload(true));
 
-        this.add.text(0, 0, 'How to play\n遊び方\nAsobikata', { fill: '#fff' })
+        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .05, 'How to play\n遊び方\nAsobikata', { fill: '#fff' })
             .setFontSize(36);
 
-        this.add.text(0, 200, 'Walk around.\n歩き回る\nArukimawaru', { fill: '#fff' })
+        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .25, 'Walk around.\n歩き回る\nArukimawaru', { fill: '#fff' })
             .setFontSize(20);
-        this.add.text(60, 280, 'Play music.\n音楽を再生\nOngaku o saisei', { fill: '#fff' })
+        this.add.text(this.game.canvas.width * .30, this.game.canvas.height * .40, 'Play music.\n音楽を再生\nOngaku o saisei', { fill: '#fff' })
             .setFontSize(20);
-        this.add.text(120, 360, 'Collect pets.\nペットを集める\nPetto o atsumeru', { fill: '#fff' })
+        this.add.text(this.game.canvas.width * .50, this.game.canvas.height * .55, 'Collect pets.\nペットを集める\nPetto o atsumeru', { fill: '#fff' })
             .setFontSize(20);
-
-        this.add.text(250, 600, 'Next\n次\nTsugi', { fill: '#fff' })
-            .setFontSize(20)
+        
+        this.add.rectangle(this.game.canvas.width * .75, this.game.canvas.height * .80, this.game.canvas.width *.45, this.game.canvas.height * .10, 0x22ff22, 1)
             .setInteractive()
-            // TODO better way to change scenes.
-            .on('pointerdown', () => this.scene.sendToBack());
+            .on('pointerdown', () => this.scene.bringToTop('CatchPetsScene'));            
+        this.add.text(250, 610, 'Next\n次\nTsugi', { fill: '#fff' })
+            .setFontSize(20);
+    }
+}
+class InventoryScene extends Phaser.Scene {
+    constructor() {
+        super({ key: 'InventoryScene', active: true });
+    }
+    create() {
+        this.add.rectangle(this.game.canvas.width * .50, this.game.canvas.height * .50, this.game.canvas.width, this.game.canvas.height, 0x5551155, 1)
+            .setInteractive(); // to prevent click-through from one sceen to a scene behind it.
+            
+        this.add.rectangle(this.game.canvas.width * .75, this.game.canvas.height * .20, this.game.canvas.width *.10, this.game.canvas.width *.10, 0x22ff22, 1)   
+            .setInteractive()
+            .on('pointerdown', () => {
+                this.scene.bringToTop('CatchPetsScene');
+            });
+        this.add.text(this.game.canvas.width * .75 - 10, this.game.canvas.height * .20 - 20, 'x', { fill: '#fff' })
+            .setFontSize(36);
+
+        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .25, 'NS Commons\n普通の NS\nFutsū no NS', { fill: '#fff' }).setFontSize(20);
+
+        this.add.rectangle(this.game.canvas.width * .75, this.game.canvas.height * .80, this.game.canvas.width *.45, this.game.canvas.height * .10, 0x22ff22, 1)
+            .setInteractive()
+            .on('pointerdown', () => {});            
+        this.add.text(250, 610, 'Next\n次\nTsugi', { fill: '#fff' })
+            .setFontSize(20);
     }
 }
 class CatchPetsScene extends Phaser.Scene {
@@ -73,19 +109,8 @@ class CatchPetsScene extends Phaser.Scene {
         this.load.spritesheet('petsX8', 'assets/petsX8.png', { frameWidth: 8, frameHeight: 8 });
     }
     create() {
-        this.add.rectangle(this.game.canvas.width * .50, this.game.canvas.height * .50, this.game.canvas.width, this.game.canvas.height, 0xeeeeee, 1);
-
-        this.add.text(20, 80, 'Menu\nメニュー\nMenyū', { fill: '#000' })
-            .setFontSize(20)
-            .setInteractive()
-            // TODO better way to change scenes.
-            .on('pointerdown', () => {
-                this.scene.sendToBack();
-            });
-
-        var bag = this.add.sprite(this.game.canvas.width * .8, this.game.canvas.height * .1, 'catchPet')
-            .setFrame([3]).setInteractive()
-            .setScale(2);
+        this.add.rectangle(this.game.canvas.width * .50, this.game.canvas.height * .50, this.game.canvas.width, this.game.canvas.height, 0xeeeeee, 1)
+            .setInteractive(); // to prevent click-through from one sceen to a scene behind it.
 
         this.petNameText = this.add.text(this.game.canvas.width * .15, this.game.canvas.height * .33, "", { fill: '#000' })
             .setFontSize(36);
@@ -102,7 +127,7 @@ class CatchPetsScene extends Phaser.Scene {
             .setVisible(false);
 
         var note = this.add.sprite(this.game.canvas.width * .29, this.game.canvas.height * .72, 'catchPet')
-            .setFrame([1]).setInteractive()
+            .setFrame([1])
             .setScale(3);
 
         this.notesPlayedText = this.add.text(this.game.canvas.width * .33, this.game.canvas.height * .70, "", { fill: '#000' })
@@ -112,6 +137,22 @@ class CatchPetsScene extends Phaser.Scene {
         this.createPianoKey(1, this.game.canvas.width * 2 / 5, this.game.canvas.height * .80, "A");
         this.createPianoKey(2, this.game.canvas.width * 3 / 5, this.game.canvas.height * .80, "C");
         this.createPianoKey(3, this.game.canvas.width * 4 / 5, this.game.canvas.height * .80, "F");
+
+        this.add.rectangle(this.game.canvas.width * .25, this.game.canvas.height * .20, this.game.canvas.width *.33, this.game.canvas.height * .10, 0x000, .5)    
+            .setInteractive()
+            .on('pointerdown', () => {
+                this.scene.bringToTop('TitleScene');
+            });
+        this.add.text(50, 130, 'Menu\nメニュー\nMenyū', { fill: '#000' })
+            .setFontSize(20);
+
+        var bag = this.add.sprite(this.game.canvas.width * .75, this.game.canvas.height * .20, 'catchPet')
+            .setFrame([3])
+            .setInteractive()
+            .on('pointerdown', () => {
+                this.scene.bringToTop('InventoryScene');
+            })
+            .setScale(2);
 
         this.createMessagePopup();
     }
@@ -554,7 +595,7 @@ var config = {
         }
     },
     // Order here matters.  The first scene is listed last.
-    scene: [CatchPetsScene, HowToPlayScene, TitleScene]
+    scene: [InventoryScene, CatchPetsScene, HowToPlayScene, TitleScene]
 };
 
 var game = new Phaser.Game(config);
