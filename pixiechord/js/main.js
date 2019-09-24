@@ -103,7 +103,7 @@ class DebugScene extends Phaser.Scene {
             .setInteractive()
             .on('pointerdown', () => navigator.vibrate([100, 90, 100])); 
                     
-        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .35, 'Vibrate 500ms', { fill: '#fff' })
+        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .40, 'Vibrate 500ms', { fill: '#fff' })
             .setFontSize(20)
             .setInteractive()
             .on('pointerdown', () => navigator.vibrate(500)); 
@@ -367,24 +367,17 @@ class EncounterFactory {
         var self = this;
 
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function (location) {
-                var latitude = location.coords.latitude;
-                var longitude = location.coords.longitude;
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var latitude = position.coords.latitude;
+                var longitude = position.coords.longitude;
                 var encounter = self._getEncounter(latitude, longitude, dateTime, notesPlayed, inventory);
                 callback(encounter);
-            }, function () {
-                // If geolocation fails, use a random location
-                // https://stackoverflow.com/a/3885172/1804678
-                var latitude = null;
-                var longitude = null;
-                var encounter = self._getEncounter(latitude, longitude, dateTime, notesPlayed, inventory);
+            }, function (positionError) {
+                var encounter = new Encounter(EncounterType.Message, positionError.message);
                 callback(encounter);
-            }, { timeout: 10000 });
+            }, { timeout: 2000, maximumAge: 5000, enableHighAccuracy: true });
         } else {
-            // If the browser does not support location, provide a random location.
-            var latitude = null;
-            var longitude = null;
-            var encounter = self._getEncounter(latitude, longitude, dateTime, notesPlayed, inventory);
+            var encounter = new Encounter(EncounterType.Message, "Your browser does not support GPS.");
             callback(encounter);
         }
     }
