@@ -34,6 +34,7 @@ class TitleScene extends Phaser.Scene {
 class HowToPlayScene extends Phaser.Scene {
     constructor() {
         super({ key: 'HowToPlayScene', active: true });
+        this.debugCount = 0;
     }
     create() {
         this.add.rectangle(this.game.canvas.width * .50, this.game.canvas.height * .50, this.game.canvas.width, this.game.canvas.height, 0x001100, 1)
@@ -42,7 +43,14 @@ class HowToPlayScene extends Phaser.Scene {
         // secret refresh
         this.add.rectangle(this.game.canvas.width * .90, this.game.canvas.height * .20, this.game.canvas.width * .20, this.game.canvas.height * .40, 0xff0000, 0)
             .setInteractive()
-            .on('pointerdown', () => window.location.reload(true));
+            .on('pointerdown', () => {
+                this.debugCount++;
+                if (this.debugCount >= 3) {
+                    this.debugCount = 0;
+                    this.scene.bringToTop('DebugScene');
+                }
+            }
+        );
 
         this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .05, 'How to play\n遊び方\nAsobikata', { fill: '#fff' })
             .setFontSize(36);
@@ -59,6 +67,46 @@ class HowToPlayScene extends Phaser.Scene {
             .on('pointerdown', () => this.scene.bringToTop('CatchPetsScene'));            
         this.add.text(250, 610, 'Next\n次\nTsugi', { fill: '#fff' })
             .setFontSize(20);
+    }
+}
+class DebugScene extends Phaser.Scene {
+    constructor() {
+        super({ key: 'DebugScene', active: true });
+    }
+    create() {
+        this.add.rectangle(this.game.canvas.width * .50, this.game.canvas.height * .50, this.game.canvas.width, this.game.canvas.height, 0x551111, 1)
+            .setInteractive(); // to prevent click-through from one sceen to a scene behind it.
+
+        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .05, 'DEBUG MENU', { fill: '#f00' })
+            .setFontSize(36);   
+
+        this.add.rectangle(this.game.canvas.width * .75, this.game.canvas.height * .20, this.game.canvas.width *.10, this.game.canvas.width *.10, 0x22ff22, 1)   
+            .setInteractive()
+            .on('pointerdown', () => {
+                this.scene.bringToTop('TitleScene');
+            });
+        this.add.text(this.game.canvas.width * .75 - 10, this.game.canvas.height * .20 - 20, 'x', { fill: '#fff' })
+            .setFontSize(36);   
+                    
+        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .25, 'Refresh from server.', { fill: '#fff' })
+            .setFontSize(20)
+            .setInteractive()
+            .on('pointerdown', () => window.location.reload(true));    
+                    
+        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .30, 'Clear pet inventory.', { fill: '#fff' })
+            .setFontSize(20)
+            .setInteractive()
+            .on('pointerdown', () => inventory.pets = []);    
+                    
+        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .35, 'Vibrate 100ms (90ms pause) 100ms', { fill: '#fff' })
+            .setFontSize(20)
+            .setInteractive()
+            .on('pointerdown', () => navigator.vibrate(100, 90, 100)); 
+                    
+        // TODO maybe I could do this in HTML.  Provide something scrollable to view this in.
+        var message = console2.errors[console2.errors.length - 1];
+        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .75, message, { fill: '#fff' })
+            .setFontSize(12);;
     }
 }
 class InventoryScene extends Phaser.Scene {
@@ -117,6 +165,8 @@ class CatchPetsScene extends Phaser.Scene {
 
         this.bubble = this.add.sprite(this.game.canvas.width * .50, this.game.canvas.height * .50, 'catchPet')
             .setFrame([0])
+            .setInteractive()
+            .on('pointerdown', () => this.reset())
             .setScale(3);
             
         this.petSprite = this.add.sprite(this.game.canvas.width * .50, this.game.canvas.height * .50, 'petsX16')
@@ -368,7 +418,7 @@ class EncounterFactory {
         return esCommonData[lon10];
     }
     collectedRecently(petIndex, inventory, dateTime) {
-        const beBackInMinutes = 15;
+        const beBackInMinutes = 5;
         var dateCheck = this.addMinutes(dateTime, - beBackInMinutes);
 
         var collectedRecently = inventory.pets.some(function (pet) {
@@ -417,6 +467,18 @@ class Inventory {
     }
     addPet(pet) {
         this.pets.push(pet);
+    }
+}
+class Console2 {
+    constructor() {
+        this.errors = [];
+        (function(self){
+            var oldLog = console.error;
+            console.error = function (message) {
+                oldLog.apply(console, arguments);
+                self.errors.push(message);
+            };
+        })(this);
     }
 }
 
@@ -595,7 +657,13 @@ var config = {
         }
     },
     // Order here matters.  The first scene is listed last.
-    scene: [InventoryScene, CatchPetsScene, HowToPlayScene, TitleScene]
+    scene: [DebugScene, InventoryScene, CatchPetsScene, HowToPlayScene, TitleScene]
 };
+
+var console2 = new Console2();
+
+// test
+console.error("test 1");
+console.error("test 2");
 
 var game = new Phaser.Game(config);
