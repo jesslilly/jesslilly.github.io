@@ -49,8 +49,7 @@ class HowToPlayScene extends Phaser.Scene {
                     this.debugCount = 0;
                     this.scene.bringToTop('DebugScene');
                 }
-            }
-        );
+            });
 
         this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .05, 'How to play\n遊び方\nAsobikata', { fill: '#fff' })
             .setFontSize(36);
@@ -72,6 +71,7 @@ class HowToPlayScene extends Phaser.Scene {
 class DebugScene extends Phaser.Scene {
     constructor() {
         super({ key: 'DebugScene', active: true });
+        this.errorIndex = 0;
     }
     create() {
         this.add.rectangle(this.game.canvas.width * .50, this.game.canvas.height * .50, this.game.canvas.width, this.game.canvas.height, 0x551111, 1)
@@ -101,12 +101,21 @@ class DebugScene extends Phaser.Scene {
         this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .35, 'Vibrate 100ms (90ms pause) 100ms', { fill: '#fff' })
             .setFontSize(20)
             .setInteractive()
-            .on('pointerdown', () => navigator.vibrate(100, 90, 100)); 
+            .on('pointerdown', () => navigator.vibrate([100, 90, 100])); 
+                    
+        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .35, 'Vibrate 500ms', { fill: '#fff' })
+            .setFontSize(20)
+            .setInteractive()
+            .on('pointerdown', () => navigator.vibrate(500)); 
                     
         // TODO maybe I could do this in HTML.  Provide something scrollable to view this in.
-        var message = console2.errors[console2.errors.length - 1];
-        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .75, message, { fill: '#fff' })
-            .setFontSize(12);;
+        var console = this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .75, console2.errors[0], { fill: '#fff' })
+            .setFontSize(12)
+            .setInteractive()
+            .on('pointerdown', () => {
+                this.errorIndex = (this.errorIndex < console2.errors.length - 1) ? this.errorIndex + 1 : 0;
+                console.text = console2.errors[this.errorIndex];
+            });
     }
 }
 class InventoryScene extends Phaser.Scene {
@@ -473,9 +482,16 @@ class Console2 {
     constructor() {
         this.errors = [];
         (function(self){
-            var oldLog = console.error;
+            var oldFunction = console.error;
             console.error = function (message) {
-                oldLog.apply(console, arguments);
+                oldFunction.apply(console, arguments);
+                self.errors.push(message);
+            };
+        })(this);
+        (function(self){
+            var oldFunction = console.warn;
+            console.warn = function (message) {
+                oldFunction.apply(console, arguments);
                 self.errors.push(message);
             };
         })(this);
@@ -662,8 +678,7 @@ var config = {
 
 var console2 = new Console2();
 
-// test
-console.error("test 1");
-console.error("test 2");
+console.error("test error");
+console.warn("test warning");
 
 var game = new Phaser.Game(config);
