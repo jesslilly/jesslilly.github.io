@@ -17,7 +17,7 @@ class TitleScene extends Phaser.Scene {
 
         var textPadPercent = 0.01;
 
-        this.add.rectangle(this.game.canvas.width * .05, this.game.canvas.height * .80, this.game.canvas.width *.38, this.game.canvas.height * .10, 0xff2222, 1)
+        this.add.rectangle(this.game.canvas.width * .05, this.game.canvas.height * .80, this.game.canvas.width *.38, this.game.canvas.height * .10, 0x991111, 1)
             .setOrigin(0,0)
             .setInteractive()
             .on('pointerdown', () => this.scene.bringToTop('HowToPlayScene'));
@@ -25,7 +25,7 @@ class TitleScene extends Phaser.Scene {
         this.add.text(this.game.canvas.width * (.05 + textPadPercent), this.game.canvas.height * (.80 + textPadPercent), 'New Game\n新しいゲーム\nAtarashī gēmu', { fill: '#fff' })
             .setFontSize(20);
         
-        this.add.rectangle(this.game.canvas.width * .47, this.game.canvas.height * .80, this.game.canvas.width *.49, this.game.canvas.height * .10, 0x22ff22, 1)
+        this.add.rectangle(this.game.canvas.width * .47, this.game.canvas.height * .80, this.game.canvas.width *.49, this.game.canvas.height * .10, 0x119911, 1)
             .setOrigin(0,0)
             .setInteractive()
             .on('pointerdown', () => this.scene.bringToTop('HowToPlayScene'));
@@ -59,12 +59,12 @@ class HowToPlayScene extends Phaser.Scene {
 
         this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .25, 'Walk around.\n歩き回る\nArukimawaru', { fill: '#fff' })
             .setFontSize(20);
-        this.add.text(this.game.canvas.width * .30, this.game.canvas.height * .40, 'Play music.\n音楽を再生\nOngaku o saisei', { fill: '#fff' })
+        this.add.text(this.game.canvas.width * .25, this.game.canvas.height * .40, 'Play music.\n音楽を再生\nOngaku o saisei', { fill: '#fff' })
             .setFontSize(20);
-        this.add.text(this.game.canvas.width * .50, this.game.canvas.height * .55, 'Collect pets.\nペットを集める\nPetto o atsumeru', { fill: '#fff' })
+        this.add.text(this.game.canvas.width * .40, this.game.canvas.height * .55, 'Collect pixies.\nピクシーを集める\nPikushī o atsumeru', { fill: '#fff' })
             .setFontSize(20);
         
-        this.add.rectangle(this.game.canvas.width * .75, this.game.canvas.height * .80, this.game.canvas.width *.45, this.game.canvas.height * .10, 0x22ff22, 1)
+        this.add.rectangle(this.game.canvas.width * .75, this.game.canvas.height * .80, this.game.canvas.width *.45, this.game.canvas.height * .10, 0x119911, 1)
             .setInteractive()
             .on('pointerdown', () => this.scene.bringToTop('CatchPetsScene'));            
         this.add.text(250, 610, 'Next\n次\nTsugi', { fill: '#fff' })
@@ -83,7 +83,7 @@ class DebugScene extends Phaser.Scene {
         this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .05, 'DEBUG MENU', { fill: '#f00' })
             .setFontSize(36);   
 
-        this.add.rectangle(this.game.canvas.width * .75, this.game.canvas.height * .20, this.game.canvas.width *.10, this.game.canvas.width *.10, 0x22ff22, 1)   
+        this.add.rectangle(this.game.canvas.width * .75, this.game.canvas.height * .20, this.game.canvas.width *.10, this.game.canvas.width *.10, 0x119911, 1)   
             .setInteractive()
             .on('pointerdown', () => {
                 this.scene.bringToTop('TitleScene');
@@ -111,35 +111,44 @@ class DebugScene extends Phaser.Scene {
             .setInteractive()
             .on('pointerdown', () => navigator.vibrate(500)); 
                     
-        // todo no captured in log
-        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .45, 'Create Phaser 3 error (test logging)', { fill: '#fff' })
+        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .45, 'Create Phaser 3 error+ (test logging)', { fill: '#fff' })
             .setFontSize(20)
             .setInteractive()
-            .on('pointerdown', () => this.add.sprite(0,0,'invalid spritesheet name').functionThatDoesNotExist()); 
+            .on('pointerdown', () => {
+                console.error("test: Normal error.");
+                this.add.sprite(0,0,'invalid spritesheet name').functionThatDoesNotExist();
+            }
+        ); 
 
         var latLongText = this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .50, 'Show LAT/LONG', { fill: '#fff' })
             .setFontSize(20)
             .setInteractive()
-            .on('pointerdown', () => this.getPosition(text => latLongText.text = text)); 
+            .on('pointerdown', () => this.getPosition(text => {
+                console.log(text);
+                latLongText.text = text;
+            })); 
 
         this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .55, 'Add commons to inventory', { fill: '#fff' })
             .setFontSize(20)
             .setInteractive()
             .on('pointerdown', () => this.addCommonsToInventory()); 
                     
-        // todo no captured in log
         this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .60, 'Create JS error (test logging)', { fill: '#fff' })
             .setFontSize(20)
             .setInteractive()
             .on('pointerdown', () => functionThatDoesNotExist()); 
-                    
-        var console = this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .75, console2.errors[0], { fill: '#fff' })
-            .setFontSize(12)
+ 
+        this.add.rectangle(0, this.game.canvas.height * .75, this.game.canvas.width, this.game.canvas.height * .20, 0x331111, 1)
+            .setOrigin(0,0)
             .setInteractive()
             .on('pointerdown', () => {
                 this.errorIndex = (this.errorIndex < console2.errors.length - 1) ? this.errorIndex + 1 : 0;
-                console.text = console2.errors[this.errorIndex];
+                consoleText.text = console2.errors[this.errorIndex];
             });
+
+        var consoleText = this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .75, console2.errors[0], { fill: '#fff' })
+            .setFontSize(12)
+            .setInteractive();
     }
     getPosition(callback) {
         
@@ -172,9 +181,10 @@ class DebugScene extends Phaser.Scene {
     }
 }
 class PetNamePlate {
-    constructor(sprite, text) {
-        this.sprite = sprite;
-        this.text = text;
+    constructor(petSprite, nameText, quantityText) {
+        this.petSprite = petSprite;
+        this.nameText = nameText;
+        this.quantityText = quantityText;
     }
 }
 class InventoryScene extends Phaser.Scene {
@@ -183,6 +193,7 @@ class InventoryScene extends Phaser.Scene {
         this.petNamePlates = [];
     }
     preload() {
+        this.load.spritesheet('catchPet', 'assets/catchPet.png', { frameWidth: 16, frameHeight: 16 });
         this.load.spritesheet('petsX16', 'assets/petsX16.png', { frameWidth: 16, frameHeight: 16 });
         this.load.spritesheet('petsX24', 'assets/petsX24.png', { frameWidth: 24, frameHeight: 24 });
         this.load.spritesheet('petsX8', 'assets/petsX8.png', { frameWidth: 8, frameHeight: 8 });
@@ -191,7 +202,7 @@ class InventoryScene extends Phaser.Scene {
         this.add.rectangle(this.game.canvas.width * .50, this.game.canvas.height * .50, this.game.canvas.width, this.game.canvas.height, 0x5551155, 1)
             .setInteractive(); // to prevent click-through from one sceen to a scene behind it.
             
-        this.add.rectangle(this.game.canvas.width * .75, this.game.canvas.height * .20, this.game.canvas.width *.10, this.game.canvas.width *.10, 0x22ff22, 1)   
+        this.add.rectangle(this.game.canvas.width * .75, this.game.canvas.height * .20, this.game.canvas.width *.10, this.game.canvas.width *.10, 0x119911, 1)   
             .setInteractive()
             .setOrigin(0,0)
             .on('pointerdown', () => {
@@ -203,13 +214,15 @@ class InventoryScene extends Phaser.Scene {
 
         this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .20, 'NS Commons\n普通の NS\nFutsū no NS', { fill: '#fff' }).setFontSize(20);
 
-        this.add.rectangle(this.game.canvas.width * .75, this.game.canvas.height * .80, this.game.canvas.width *.45, this.game.canvas.height * .10, 0x22ff22, 1)
+        this.add.rectangle(this.game.canvas.width * .75, this.game.canvas.height * .80, this.game.canvas.width *.45, this.game.canvas.height * .10, 0x119911, 1)
             .setInteractive()
             .on('pointerdown', () => {});            
         this.add.text(250, 610, 'Next\n次\nTsugi', { fill: '#fff' })
             .setFontSize(20);
 
         this.addPetNameplates();
+
+        this.assignPetNameplates(0);
     }
     addPetNameplates() {
         var xincrement = this.game.canvas.width * .33;
@@ -230,15 +243,30 @@ class InventoryScene extends Phaser.Scene {
     }
     addPetNameplate(x, y) {
         var scale = 4;
-        var sprite = this.petSprite = this.add.sprite(x, y, 'petsX16')
-            .setFrame(12)
+        // todo bubble with hidden / visible toggle.
+        var petSprite = this.petSprite = this.add.sprite(x, y, 'petsX16')
+            .setFrame(1000)
             .setOrigin(0,0)
             .setScale(scale);
-        var scaledHeight = sprite.height * scale;
-        var text = this.add.text(x, y + scaledHeight, 'name', { fill: '#fff' })
+        var scaledHeight = petSprite.height * scale;
+        var quantityText = this.add.text(x, y, '0', { fill: '#fff' })
             .setFontSize(16);
-        var namePlate = new PetNamePlate(sprite, text);
+        var nameText = this.add.text(x, y + scaledHeight, '? ? ? ?', { fill: '#fff' })
+            .setFontSize(16);
+        var namePlate = new PetNamePlate(petSprite, nameText, quantityText);
         this.petNamePlates.push(namePlate);
+    }
+    assignPetNameplates(petGroupIndex) {
+        if (inventory.pets.length === 0) {
+            return;
+        }
+        this.assignPetNameplate(0, inventory.pets[0], 1);
+    }
+    assignPetNameplate(nameplateIndex, pet, quanity) {
+        var namePlate = this.petNamePlates[nameplateIndex];
+        namePlate.petSprite.setFrame(pet.petIndex);
+        namePlate.nameText.text = pet.name;
+        namePlate.quantityText.text = quanity;
     }
 }
 class CatchPetsScene extends Phaser.Scene {
@@ -307,6 +335,7 @@ class CatchPetsScene extends Phaser.Scene {
             .setFrame([3])
             .setInteractive()
             .on('pointerdown', () => {
+                this.scene.get('InventoryScene').assignPetNameplates(0);
                 this.scene.bringToTop('InventoryScene');
             })
             .setScale(2);
@@ -320,14 +349,14 @@ class CatchPetsScene extends Phaser.Scene {
         this.messageBackdrop = this.add.rectangle(this.game.canvas.width * .50, this.game.canvas.height * .50, this.game.canvas.width, this.game.canvas.height, 0x000000, .5);    
         this.messageBackground = this.add.rectangle(this.game.canvas.width * .50, this.game.canvas.height * .50, this.game.canvas.width * .90, this.game.canvas.height * .50, 0xffdddd);
         this.messageText = this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .30, "test", { fill: '#000' })
-            .setFontSize(36);
+            .setFontSize(28);
         var button = {
             x: this.game.canvas.width * .50,
             y: this.game.canvas.height * .65, 
             width: this.game.canvas.width * .75,
             height: this.game.canvas.height * .10
         }
-        this.messageButton = this.add.rectangle(button.x, button.y, button.width, button.height, 0xff2222, 1)
+        this.messageButton = this.add.rectangle(button.x, button.y, button.width, button.height, 0x991111, 1)
             .setInteractive()
             .on('pointerdown', () => {
                     this.toggleMessagePopup(false);
@@ -587,9 +616,11 @@ class Console2 {
                 self.errors.push(message);
             };
         })(this);
+        window.onerror = function(error, url, line) {
+            console.error('ERR:'+error+' L:'+line);
+        };        
     }
 }
-
 var petData = [
     { name: "Mr. Who Knows", composerId: 1, spritesheetName: 'petsX16', spritesheetFrame: 0 },
     { name: "Money Man", composerId: 1, spritesheetName: 'petsX16', spritesheetFrame: 1 },
@@ -731,7 +762,11 @@ var esCommonData = [
     43, // Mr. McWiggles
     69, // Mighty Footer
     49, // Duck
-    51, // Twister
+    12, // Achoo!
+];
+var petGroups = [
+    nsCommonData,
+    esCommonData
 ];
 var composerData = [
     "No one. Because arrays start at zero and composerId starts at 1.",
