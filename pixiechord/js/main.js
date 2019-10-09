@@ -114,11 +114,7 @@ class DebugScene extends Phaser.Scene {
         this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .45, 'Create Phaser 3 error+ (test logging)', { fill: '#fff' })
             .setFontSize(20)
             .setInteractive()
-            .on('pointerdown', () => {
-                console.error("test: Normal error.");
-                this.add.sprite(0,0,'invalid spritesheet name').functionThatDoesNotExist();
-            }
-        ); 
+            .on('pointerdown', () => this.add.sprite(0,0,'invalid spritesheet name').functionThatDoesNotExist()); 
 
         var latLongText = this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .50, 'Show LAT/LONG', { fill: '#fff' })
             .setFontSize(20)
@@ -146,7 +142,7 @@ class DebugScene extends Phaser.Scene {
                 consoleText.text = console2.errors[this.errorIndex];
             });
 
-        var consoleText = this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .75, console2.errors[0], { fill: '#fff' })
+        var consoleText = this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .75, "Tap to show errors", { fill: '#fff', wordWrap: { width: this.game.canvas.width * .80} })
             .setFontSize(12)
             .setInteractive();
     }
@@ -181,10 +177,11 @@ class DebugScene extends Phaser.Scene {
     }
 }
 class PetNamePlate {
-    constructor(petSprite, nameText, quantityText) {
+    constructor(bubbleSprite, petSprite, nameText, quantityText) {
+        this.bubbleSprite = bubbleSprite;
         this.petSprite = petSprite;
         this.nameText = nameText;
-        this.quantityText = quantityText;
+        this.quantityText = quantityText;        
     }
 }
 class InventoryScene extends Phaser.Scene {
@@ -244,16 +241,21 @@ class InventoryScene extends Phaser.Scene {
     addPetNameplate(x, y) {
         var scale = 4;
         // todo bubble with hidden / visible toggle.
-        var petSprite = this.petSprite = this.add.sprite(x, y, 'petsX16')
-            .setFrame(1000)
+        var bubbleSprite = this.add.sprite(x, y, 'catchPet')
+            .setFrame(0)
             .setOrigin(0,0)
             .setScale(scale);
+        var petSprite = this.add.sprite(x, y, 'petsX16')
+            .setFrame(0)
+            .setOrigin(0,0)
+            .setScale(scale)
+            .setVisible(false);
         var scaledHeight = petSprite.height * scale;
         var quantityText = this.add.text(x, y, '0', { fill: '#fff' })
             .setFontSize(16);
         var nameText = this.add.text(x, y + scaledHeight, '? ? ? ?', { fill: '#fff' })
             .setFontSize(16);
-        var namePlate = new PetNamePlate(petSprite, nameText, quantityText);
+        var namePlate = new PetNamePlate(bubbleSprite, petSprite, nameText, quantityText);
         this.petNamePlates.push(namePlate);
     }
     assignPetNameplates(petGroupIndex) {
@@ -262,11 +264,20 @@ class InventoryScene extends Phaser.Scene {
         }
         this.assignPetNameplate(0, inventory.pets[0], 1);
     }
-    assignPetNameplate(nameplateIndex, pet, quanity) {
+    assignPetNameplate(nameplateIndex, pet, quantity) {
         var namePlate = this.petNamePlates[nameplateIndex];
-        namePlate.petSprite.setFrame(pet.petIndex);
-        namePlate.nameText.text = pet.name;
-        namePlate.quantityText.text = quanity;
+        if (quantity <= 0) {
+            namePlate.bubbleSprite.setVisible(true);
+            namePlate.petSprite.setVisible(false);
+            namePlate.nameText.text = "? ? ? ?";
+            namePlate.quantityText.text = quantity;    
+        }
+        else {
+            namePlate.bubbleSprite.setVisible(false);
+            namePlate.petSprite.setFrame(pet.petIndex).setVisible(true);
+            namePlate.nameText.text = pet.name;
+            namePlate.quantityText.text = quantity;    
+        }
     }
 }
 class CatchPetsScene extends Phaser.Scene {
@@ -598,6 +609,23 @@ class Inventory {
     addPet(pet) {
         this.pets.push(pet);
     }
+    getInventoryViewModel(petGroupIndex) {
+        
+    }
+}
+class InventoryViewModel {
+    constructor(petInventoryViewModels) {
+        this.petInventoryViewModels = petInventoryViewModels;
+        this.petGroupName = petGroupName;
+    }
+}
+class PetInventoryViewModel {
+    constructor(petIndex, name, quantity, spritesheetName) {
+        this.petIndex = petIndex;
+        this.name = name;
+        this.quantity = quantity;
+        this.spritesheetName = spritesheetName;
+    }
 }
 class Console2 {
     constructor() {
@@ -764,9 +792,15 @@ var esCommonData = [
     49, // Duck
     12, // Achoo!
 ];
-var petGroups = [
-    nsCommonData,
-    esCommonData
+var petGroupsData = [
+    {
+        name: "NS Commons\n普通の NS\nFutsū no NS",
+        group: nsCommonData
+    },
+    {
+        name: "ES Commons\n普通の NS\nFutsū no ES",
+        group: esCommonData
+    },
 ];
 var composerData = [
     "No one. Because arrays start at zero and composerId starts at 1.",
@@ -804,8 +838,5 @@ var config = {
 };
 
 var console2 = new Console2();
-
-console.error("test error");
-console.warn("test warning");
 
 var game = new Phaser.Game(config);
