@@ -188,6 +188,8 @@ class InventoryScene extends Phaser.Scene {
     constructor() {
         super({ key: 'InventoryScene', active: true });
         this.petNamePlates = [];
+        this.headingText;
+        this.currentPetGroupIndex = 0;
     }
     preload() {
         this.load.spritesheet('catchPet', 'assets/catchPet.png', { frameWidth: 16, frameHeight: 16 });
@@ -209,26 +211,36 @@ class InventoryScene extends Phaser.Scene {
         this.add.text(this.game.canvas.width * (.75 + .02), this.game.canvas.height * (.20 + textPadPercent), 'x', { fill: '#fff' })
             .setFontSize(32);
 
-        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .20, 'NS Commons\n普通の NS\nFutsū no NS', { fill: '#fff' }).setFontSize(20);
+        this.headingText = this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .20, 'NS Commons\n普通の NS\nFutsū no NS', { fill: '#fff' }).setFontSize(20);
 
-        this.add.rectangle(this.game.canvas.width * .75, this.game.canvas.height * .80, this.game.canvas.width *.45, this.game.canvas.height * .10, 0x119911, 1)
+        var textPadPercent = 0.01;
+
+        this.prevButton = this.add.rectangle(this.game.canvas.width * .05, this.game.canvas.height * .80, this.game.canvas.width *.40, this.game.canvas.height * .10, 0x119911, 1)
+            .setOrigin(0,0)
             .setInteractive()
-            .on('pointerdown', () => {});            
-        this.add.text(250, 610, 'Next\n次\nTsugi', { fill: '#fff' })
+            .on('pointerdown', () => { this.assignPetNameplates(--this.currentPetGroupIndex); });
+        this.add.text(this.game.canvas.width * (.05 + textPadPercent), this.game.canvas.height * (.80 + textPadPercent), 'Pervious\n前\nMae', { fill: '#fff' })
+            .setFontSize(20);
+
+        // todo a lot of this button nonsense could go in a base class.
+        this.nextButton = this.add.rectangle(this.game.canvas.width * .55, this.game.canvas.height * .80, this.game.canvas.width *.40, this.game.canvas.height * .10, 0x119911, 1)
+            .setOrigin(0,0)
+            .setInteractive()
+            .on('pointerdown', () => { this.assignPetNameplates(++this.currentPetGroupIndex); });            
+        this.add.text(this.game.canvas.width * (.55 + textPadPercent), this.game.canvas.height * (.80 + textPadPercent), 'Next\n次\nTsugi', { fill: '#fff' })
             .setFontSize(20);
 
         this.addPetNameplates();
-
-        this.assignPetNameplates(0);
     }
     addPetNameplates() {
         var xincrement = this.game.canvas.width * .33;
         var yIncrement = this.game.canvas.width * .29;
+        var startingX = this.game.canvas.width * .10;
 
         var y = this.game.canvas.height * .29;
         for (var yIndex = 0; yIndex < 3; yIndex++) {
 
-            var x = this.game.canvas.width * .10;
+            var x = startingX;
             for (var xIndex = 0; xIndex < 3; xIndex++) {
                 this.addPetNameplate(x, y)
 
@@ -237,6 +249,7 @@ class InventoryScene extends Phaser.Scene {
 
             y = y + yIncrement;
         }
+        this.addPetNameplate(startingX, y);
     }
     addPetNameplate(x, y) {
         var scale = 4;
@@ -251,32 +264,52 @@ class InventoryScene extends Phaser.Scene {
             .setScale(scale)
             .setVisible(false);
         var scaledHeight = petSprite.height * scale;
-        var quantityText = this.add.text(x, y, '0', { fill: '#fff' })
-            .setFontSize(16);
+        var quantityText = this.add.text(x, y, '0', { fill: '#fff', fontWeight: 'bold' })
+            .setFontSize(16)
+            .setShadow(2, 2, 'rgba(0,0,0,1)', 0);
         var nameText = this.add.text(x, y + scaledHeight, '? ? ? ?', { fill: '#fff' })
             .setFontSize(16);
         var namePlate = new PetNamePlate(bubbleSprite, petSprite, nameText, quantityText);
         this.petNamePlates.push(namePlate);
     }
     assignPetNameplates(petGroupIndex) {
-        if (inventory.pets.length === 0) {
+
+        this.nextButton.setFillStyle(0x119911).setInteractive();
+        this.prevButton.setFillStyle(0x119911).setInteractive();
+        if (this.currentPetGroupIndex == 0) {
+            this.prevButton.setFillStyle(0x888888).disableInteractive();
+        }
+        if (this.currentPetGroupIndex == petGroupsData.length - 1) {
+            this.nextButton.setFillStyle(0x888888).disableInteractive();
+        }
+
+        this.currentPetGroupIndex = petGroupIndex;
+
+        var viewModel = inventory.getInventoryViewModel(petGroupIndex);
+
+        if (viewModel.pets.length === 0) {
             return;
         }
-        this.assignPetNameplate(0, inventory.pets[0], 1);
+        this.headingText.text = viewModel.groupName;
+
+        for (let index = 0; index < viewModel.pets.length; index++) {
+            var pet = viewModel.pets[index];
+            this.assignPetNameplate(index, pet);
+        }
     }
-    assignPetNameplate(nameplateIndex, pet, quantity) {
+    assignPetNameplate(nameplateIndex, pet) {
         var namePlate = this.petNamePlates[nameplateIndex];
-        if (quantity <= 0) {
+        if (pet.quantity <= 0) {
             namePlate.bubbleSprite.setVisible(true);
             namePlate.petSprite.setVisible(false);
             namePlate.nameText.text = "? ? ? ?";
-            namePlate.quantityText.text = quantity;    
+            namePlate.quantityText.text = pet.quantity;    
         }
         else {
             namePlate.bubbleSprite.setVisible(false);
             namePlate.petSprite.setFrame(pet.petIndex).setVisible(true);
             namePlate.nameText.text = pet.name;
-            namePlate.quantityText.text = quantity;    
+            namePlate.quantityText.text = pet.quantity;    
         }
     }
 }
@@ -610,12 +643,29 @@ class Inventory {
         this.pets.push(pet);
     }
     getInventoryViewModel(petGroupIndex) {
-        
+
+        var viewModel = new InventoryViewModel();
+        viewModel.groupName = petGroupsData[petGroupIndex].name;
+
+        var group = petGroupsData[petGroupIndex].group;
+
+        group.forEach(petIndex => {
+            var pet = petData[petIndex];
+            var petViewModel = new PetInventoryViewModel();
+            var quantity = inventory.pets.filter(x => x.petIndex == petIndex).length;
+            petViewModel.petIndex = petIndex;
+            petViewModel.name = pet.name;
+            petViewModel.quantity = quantity;
+            petViewModel.spritesheetName = pet.spritesheetName;
+            viewModel.pets.push(petViewModel);
+        });
+
+        return viewModel;
     }
 }
 class InventoryViewModel {
-    constructor(petInventoryViewModels) {
-        this.petInventoryViewModels = petInventoryViewModels;
+    constructor(petInventoryViewModels, petGroupName) {
+        this.pets = petInventoryViewModels || [];
         this.petGroupName = petGroupName;
     }
 }
@@ -798,7 +848,7 @@ var petGroupsData = [
         group: nsCommonData
     },
     {
-        name: "ES Commons\n普通の NS\nFutsū no ES",
+        name: "ES Commons\n普通の ES\nFutsū no ES",
         group: esCommonData
     },
 ];
