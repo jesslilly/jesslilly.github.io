@@ -274,6 +274,7 @@ class InventoryScene extends Phaser.Scene {
     }
     assignPetNameplates(petGroupIndex) {
 
+        this.currentPetGroupIndex = petGroupIndex;
         this.nextButton.setFillStyle(0x119911).setInteractive();
         this.prevButton.setFillStyle(0x119911).setInteractive();
         if (this.currentPetGroupIndex == 0) {
@@ -322,6 +323,8 @@ class CatchPetsScene extends Phaser.Scene {
         this.bubble;
         this.petSprite;
         this.pet; // : Pet
+        this.skySprite;
+        this.terrainSprites = [];        
 
         this.messageBackdrop;  
         this.messageBackground;
@@ -334,10 +337,19 @@ class CatchPetsScene extends Phaser.Scene {
         this.load.spritesheet('petsX16', 'assets/petsX16.png', { frameWidth: 16, frameHeight: 16 });
         this.load.spritesheet('petsX24', 'assets/petsX24.png', { frameWidth: 24, frameHeight: 24 });
         this.load.spritesheet('petsX8', 'assets/petsX8.png', { frameWidth: 8, frameHeight: 8 });
+        this.load.spritesheet('sky', 'assets/sky.png', { frameWidth: 24, frameHeight: 24 });
+        this.load.spritesheet('terrain', 'assets/terrain.png', { frameWidth: 16, frameHeight: 16 });
     }
     create() {
         this.add.rectangle(this.game.canvas.width * .50, this.game.canvas.height * .50, this.game.canvas.width, this.game.canvas.height, 0xeeeeee, 1)
             .setInteractive(); // to prevent click-through from one sceen to a scene behind it.
+
+        this.skySprite = this.add.sprite(0, 0, 'sky')
+            .setOrigin(0,0)
+            .setFrame(0)
+            .setDisplaySize(this.game.canvas.width, this.game.canvas.width);
+
+        this.addTerrainTiles();
 
         this.petNameText = this.add.text(this.game.canvas.width * .15, this.game.canvas.height * .33, "", { fill: '#000' })
             .setFontSize(36);
@@ -362,6 +374,8 @@ class CatchPetsScene extends Phaser.Scene {
         this.notesPlayedText = this.add.text(this.game.canvas.width * .33, this.game.canvas.height * .70, "", { fill: '#000' })
             .setFontSize(36);
 
+        var board = this.add.rectangle(this.game.canvas.width * .50, this.game.canvas.height * .85, this.game.canvas.width *.70, this.game.canvas.height * .20, 0x996655, 1);
+
         this.createPianoKey(0, this.game.canvas.width * 1 / 5, this.game.canvas.height * .80, "F");
         this.createPianoKey(1, this.game.canvas.width * 2 / 5, this.game.canvas.height * .80, "A");
         this.createPianoKey(2, this.game.canvas.width * 3 / 5, this.game.canvas.height * .80, "C");
@@ -385,6 +399,29 @@ class CatchPetsScene extends Phaser.Scene {
             .setScale(2);
 
         this.createMessagePopup();
+    }
+    addTerrainTiles() {
+        var xStart = 0;
+        var yStart = this.game.canvas.width;
+        var terrainWidth = 16;
+        var xScale = 3;
+        var yScale = .5;
+        var yScaleIncrement = .5;
+        var xIncrement = (terrainWidth * xScale);
+        var yIncrement = (terrainWidth * yScale);
+
+        this.terrainSprites = [];
+        for (let y = yStart; y < this.game.canvas.height; y += yIncrement) {
+            for (let x = xStart; x < this.game.canvas.width; x += xIncrement) {
+                var terrainSprite = this.add.sprite(x, y, 'terrain')
+                    .setOrigin(0,0)
+                    .setFrame(1)
+                    .setScale(xScale, yScale);
+                this.terrainSprites.push(terrainSprite);
+            }
+            yIncrement = (terrainWidth * yScale);
+            yScale += yScaleIncrement;
+        }
     }
     createMessagePopup() {
         // container.setInteractive is broken
