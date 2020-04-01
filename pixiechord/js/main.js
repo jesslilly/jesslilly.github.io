@@ -404,8 +404,9 @@ class CatchPetsScene extends Phaser.Scene {
         var xStart = 0;
         var yStart = this.game.canvas.width;
         var terrainWidth = 16;
-        var xScale = 3;
-        var yScale = .5;
+        var xScale = 2; // 3
+        var xScaleIncrement = .5; // 0
+        var yScale = 1;
         var yScaleIncrement = .5;
         var xIncrement = (terrainWidth * xScale);
         var yIncrement = (terrainWidth * yScale);
@@ -421,6 +422,8 @@ class CatchPetsScene extends Phaser.Scene {
             }
             yIncrement = (terrainWidth * yScale);
             yScale += yScaleIncrement;
+            xIncrement = (terrainWidth * xScale);
+            xScale += xScaleIncrement;
         }
     }
     createMessagePopup() {
