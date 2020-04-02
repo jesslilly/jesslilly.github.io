@@ -20,7 +20,7 @@ class TitleScene extends Phaser.Scene {
         this.add.rectangle(this.game.canvas.width * .05, this.game.canvas.height * .80, this.game.canvas.width *.38, this.game.canvas.height * .10, 0x991111, 1)
             .setOrigin(0,0)
             .setInteractive()
-            .on('pointerdown', () => this.scene.bringToTop('HowToPlayScene'));
+            .on('pointerdown', () => this.newSaveGame());
 
         this.add.text(this.game.canvas.width * (.05 + textPadPercent), this.game.canvas.height * (.80 + textPadPercent), 'New Game\n新しいゲーム\nAtarashī gēmu', { fill: '#fff' })
             .setFontSize(20);
@@ -28,10 +28,26 @@ class TitleScene extends Phaser.Scene {
         this.add.rectangle(this.game.canvas.width * .47, this.game.canvas.height * .80, this.game.canvas.width *.49, this.game.canvas.height * .10, 0x119911, 1)
             .setOrigin(0,0)
             .setInteractive()
-            .on('pointerdown', () => this.scene.bringToTop('HowToPlayScene'));
+            .on('pointerdown', () => this.loadSaveGame());
 
         this.add.text(this.game.canvas.width * (.47 + textPadPercent), this.game.canvas.height * (.80 + textPadPercent), 'Continue Game\nゲームを続ける\nGēmu o tsudzukeru', { fill: '#fff' })
             .setFontSize(20);
+    }
+    newSaveGame() {
+        saveGame.load();
+        if (!inventory.isEmpty()) {
+            var answer = window.confirm("Delete previous save?\n以前の保存を削除しますか？\nIzen no hozon o sakujo shimasu ka?");
+            if (answer === true) {
+                saveGame.delete();
+            } else {
+                return;
+            }
+        }
+        this.scene.bringToTop('HowToPlayScene');
+    }
+    loadSaveGame() {
+        saveGame.load();
+        this.scene.bringToTop('HowToPlayScene');
     }
 }
 class HowToPlayScene extends Phaser.Scene {
@@ -337,7 +353,7 @@ class CatchPetsScene extends Phaser.Scene {
         this.load.spritesheet('petsX16', 'assets/petsX16.png', { frameWidth: 16, frameHeight: 16 });
         this.load.spritesheet('petsX24', 'assets/petsX24.png', { frameWidth: 24, frameHeight: 24 });
         this.load.spritesheet('petsX8', 'assets/petsX8.png', { frameWidth: 8, frameHeight: 8 });
-        this.load.spritesheet('sky', 'assets/sky.png', { frameWidth: 24, frameHeight: 24 });
+        this.load.spritesheet('sky', 'assets/sky.png', { frameWidth: 32, frameHeight: 32 });
         this.load.spritesheet('terrain', 'assets/terrain.png', { frameWidth: 16, frameHeight: 16 });
     }
     create() {
@@ -358,6 +374,12 @@ class CatchPetsScene extends Phaser.Scene {
             .setFrame([0])
             .setInteractive()
             .on('pointerdown', () => this.reset())
+            .setScale(3);
+
+        this.add.sprite(this.game.canvas.width * .70, this.game.canvas.height * .50, 'catchPet')
+            .setFrame([0])
+            .setInteractive()
+            .on('pointerdown', () => this.changeBackground(3,3))
             .setScale(3);
             
         this.petSprite = this.add.sprite(this.game.canvas.width * .50, this.game.canvas.height * .50, 'petsX16')
@@ -399,6 +421,30 @@ class CatchPetsScene extends Phaser.Scene {
             .setScale(2);
 
         this.createMessagePopup();
+
+        this.trackLocation();
+    }
+    trackLocation() {
+
+        var dateTime = new Date();
+        var self = this;
+
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(function (position) {
+                var latitude = position.coords.latitude;
+                var longitude = position.coords.longitude;
+                var encounter = self.changeLocation(latitude, longitude);
+            }, function (positionError) {
+                //console.error(positionError);
+            }, { timeout: 2000, maximumAge: 5000, enableHighAccuracy: true });
+        } else {
+            //console.error("Your browser does not support GPS.");
+        }
+    }
+    changeLocation(latitude, longitude) {
+        var lat10 = PetMath.toQuarterMileIncrement(latitude, 10);
+        var lon10 = PetMath.toQuarterMileIncrement(longitude, 10);
+        this.changeBackground(lat10, lon10);
     }
     addTerrainTiles() {
         var xStart = 0;
@@ -425,6 +471,19 @@ class CatchPetsScene extends Phaser.Scene {
             xIncrement = (terrainWidth * xScale);
             xScale += xScaleIncrement;
         }
+    }
+    changeBackground(terrainFrameIndex, skyFrameIndex) {
+        console.log("changeBackground to " + terrainFrameIndex + ", " + skyFrameIndex)
+        this.changeTerrain(terrainFrameIndex);
+        this.changeSky(skyFrameIndex);
+    }
+    changeSky(frameIndex) {
+        this.skySprite.setFrame(frameIndex);
+    }
+    changeTerrain(frameIndex) {
+        this.terrainSprites.forEach(function(terrainSprite) {
+            terrainSprite.setFrame(frameIndex);
+        });
     }
     createMessagePopup() {
         // container.setInteractive is broken
@@ -515,7 +574,7 @@ class CatchPetsScene extends Phaser.Scene {
         this.enablePianoKeys(!show);
     }
     collectPet(pet) {
-        // TODO: Some day I may use something other than globals.  Find window.
+        // TODO: Some day I may use something other than globals.
         inventory.addPet(pet);
         this.reset();
     }
@@ -593,11 +652,12 @@ class EncounterFactory {
             callback(encounter);
         }
     }
-    // This is a good method to unit test b/c all of the inputs are defined.
+    // This is a good method to unit test b/c all of the inputs are defined.  
+    // TODO Move to a factory class
     _getEncounter(latitude, longitude, dateTime, notesPlayed, inventory) {
 
-        var lat10 = this.toQuarterMileIncrement(latitude, 10);
-        var lon10 = this.toQuarterMileIncrement(longitude, 10);
+        var lat10 = PetMath.toQuarterMileIncrement(latitude, 10);
+        var lon10 = PetMath.toQuarterMileIncrement(longitude, 10);
 
         var petIndex = 0;
 
@@ -644,32 +704,6 @@ class EncounterFactory {
     addMinutes(date, minutes) {
         return new Date(date.getTime() + minutes * 60000);
     }
-    toQuarterMileIncrement(geocoord, increments) {
-        // Normally increments is 10.
-
-        // https://gis.stackexchange.com/questions/142326/calculating-longitude-length-in-miles
-        // Each degree of latitude is approximately 69 miles (111 kilometers) apart.
-        // At 40° north or south the distance between a degree of longitude is 53 miles (85 km)
-        // ----------------------
-        // 1 lat = 69 m
-        // 1/10 = .1 lat = 6.9 m
-        // 1/100 = .01 lat = .69 m
-        // 1/300 = .0033 lat = .23 m
-        // 44.466166 - 44.462988 = 0.003177 = ~ .25 m (1/4 mile)
-        // With 300 (and an extra 10 so I can mod 10), I can break up a quarter mile into 10 sections!
-        var geo10 = 0;
-        if (geocoord != null) {
-            geo10 = geocoord * 3000 % increments;
-            geo10 = Math.abs(Math.floor(geo10));
-        }
-        else {
-            geo10 = this.getRandomInt(10); // 0-9;
-        }
-        return geo10;
-    }
-    getRandomInt(max) {
-        return Math.floor(Math.random() * Math.floor(max));
-    }
 }
 class Inventory {
     constructor() {
@@ -678,9 +712,11 @@ class Inventory {
     }
     addItem(item) {
         this.items.push(item);
+        saveGame.save();
     }
     addPet(pet) {
         this.pets.push(pet);
+        saveGame.save();
     }
     getInventoryViewModel(petGroupIndex) {
 
@@ -701,6 +737,9 @@ class Inventory {
         });
 
         return viewModel;
+    }
+    isEmpty() {
+        return this.items.length === 0 && this.pets.length === 0;
     }
 }
 class InventoryViewModel {
@@ -738,6 +777,53 @@ class Console2 {
             console.error('ERR:'+error+' L:'+line);
         };        
     }
+}
+class SaveGame {
+    constructor() {
+        this.itemsKey = 'petgame.inventory.items';
+        this.petsKey = 'petgame.inventory.pets';
+    }
+    save() {
+        localStorage.setItem(this.itemsKey, JSON.stringify(inventory.items));
+        localStorage.setItem(this.petsKey, JSON.stringify(inventory.pets));
+    }
+    load() {
+        inventory = new Inventory();
+        inventory.items = JSON.parse(localStorage.getItem(this.itemsKey));
+        inventory.pets = JSON.parse(localStorage.getItem(this.petsKey));
+    }
+    delete() {
+        inventory = new Inventory();
+        localStorage.setItem(this.itemsKey, JSON.stringify([]));
+        localStorage.setItem(this.petsKey, JSON.stringify([]));
+    }
+}
+class PetMath {}
+PetMath.toQuarterMileIncrement = function(geocoord, increments) {
+    // Normally increments is 10.
+
+    // https://gis.stackexchange.com/questions/142326/calculating-longitude-length-in-miles
+    // Each degree of latitude is approximately 69 miles (111 kilometers) apart.
+    // At 40° north or south the distance between a degree of longitude is 53 miles (85 km)
+    // ----------------------
+    // 1 lat = 69 m
+    // 1/10 = .1 lat = 6.9 m
+    // 1/100 = .01 lat = .69 m
+    // 1/300 = .0033 lat = .23 m
+    // 44.466166 - 44.462988 = 0.003177 = ~ .25 m (1/4 mile)
+    // With 300 (and an extra 10 so I can mod 10), I can break up a quarter mile into 10 sections!
+    var geo10 = 0;
+    if (geocoord != null) {
+        geo10 = geocoord * 3000 % increments;
+        geo10 = Math.abs(Math.floor(geo10));
+    }
+    else {
+        geo10 = PetMath.getRandomInt(10); // 0-9;
+    }
+    return geo10;
+}
+PetMath.getRandomInt = function(max) {
+    return Math.floor(Math.random() * Math.floor(max));
 }
 var petData = [
     { name: "Mr. Who Knows", composerId: 1, spritesheetName: 'petsX16', spritesheetFrame: 0 },
@@ -892,6 +978,30 @@ var petGroupsData = [
         group: esCommonData
     },
 ];
+var terrainTypeData = [
+    { name: "prarie", spritesheetName: 'terrain', spritesheetFrame: 0 },
+    { name: "grass", spritesheetName: 'terrain', spritesheetFrame: 1 },
+    { name: "snow", spritesheetName: 'terrain', spritesheetFrame: 2 },
+    { name: "water", spritesheetName: 'terrain', spritesheetFrame: 3 },
+    { name: "crystal", spritesheetName: 'terrain', spritesheetFrame: 4 },
+    { name: "sand", spritesheetName: 'terrain', spritesheetFrame: 5 },
+    { name: "dirt", spritesheetName: 'terrain', spritesheetFrame: 6 },
+    { name: "nether", spritesheetName: 'terrain', spritesheetFrame: 7 },
+    { name: "lava", spritesheetName: 'terrain', spritesheetFrame: 8 },
+    { name: "ice", spritesheetName: 'terrain', spritesheetFrame: 9 },
+];
+var skyTypeData = [
+    { name: "sun", spritesheetName: 'terrain', spritesheetFrame: 0 },
+    { name: "cloud", spritesheetName: 'terrain', spritesheetFrame: 1 },
+    { name: "rain", spritesheetName: 'terrain', spritesheetFrame: 2 },
+    { name: "mountain", spritesheetName: 'terrain', spritesheetFrame: 3 },
+    { name: "double-rainbow", spritesheetName: 'terrain', spritesheetFrame: 4 },
+    { name: "under-world", spritesheetName: 'terrain', spritesheetFrame: 5 },
+    { name: "rock", spritesheetName: 'terrain', spritesheetFrame: 6 },
+    { name: "cave", spritesheetName: 'terrain', spritesheetFrame: 7 },
+    { name: "forrest", spritesheetName: 'terrain', spritesheetFrame: 8 },
+    { name: "desert", spritesheetName: 'terrain', spritesheetFrame: 9 },
+];
 var composerData = [
     "No one. Because arrays start at zero and composerId starts at 1.",
     "Joe, Caller of Beasts",
@@ -910,6 +1020,7 @@ var composerData = [
     "Ezra, Hero of Pickles",
 ];
 var inventory = new Inventory();
+var saveGame = new SaveGame();
 
 var config = {
     type: Phaser.AUTO,
