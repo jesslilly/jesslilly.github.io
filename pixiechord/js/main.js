@@ -347,6 +347,9 @@ class CatchPetsScene extends Phaser.Scene {
         this.messageText;
         this.messageButton;
         this.messageButtonText;
+
+        this.lat10 = 0;
+        this.lon10 = 0;
     }
     preload() {
         this.load.spritesheet('catchPet', 'assets/catchPet.png', { frameWidth: 16, frameHeight: 16 });
@@ -357,6 +360,13 @@ class CatchPetsScene extends Phaser.Scene {
         this.load.spritesheet('terrain', 'assets/terrain.png', { frameWidth: 16, frameHeight: 16 });
     }
     create() {
+
+        var self = this;
+        // This code is really only here for testing on a laptop (non GPS device).
+        this.input.keyboard.on('keydown', function (event) { 
+            self.simulateChangeLocation();
+        });
+
         this.add.rectangle(this.game.canvas.width * .50, this.game.canvas.height * .50, this.game.canvas.width, this.game.canvas.height, 0xeeeeee, 1)
             .setInteractive(); // to prevent click-through from one sceen to a scene behind it.
 
@@ -374,12 +384,6 @@ class CatchPetsScene extends Phaser.Scene {
             .setFrame([0])
             .setInteractive()
             .on('pointerdown', () => this.reset())
-            .setScale(3);
-
-        this.add.sprite(this.game.canvas.width * .70, this.game.canvas.height * .50, 'catchPet')
-            .setFrame([0])
-            .setInteractive()
-            .on('pointerdown', () => this.changeBackground(3,3))
             .setScale(3);
             
         this.petSprite = this.add.sprite(this.game.canvas.width * .50, this.game.canvas.height * .50, 'petsX16')
@@ -433,7 +437,7 @@ class CatchPetsScene extends Phaser.Scene {
             navigator.geolocation.watchPosition(function (position) {
                 var latitude = position.coords.latitude;
                 var longitude = position.coords.longitude;
-                var encounter = self.changeLocation(latitude, longitude);
+                self.changeLocation(latitude, longitude);
             }, function (positionError) {
                 //console.error(positionError);
             }, { timeout: 2000, maximumAge: 5000, enableHighAccuracy: true });
@@ -442,9 +446,14 @@ class CatchPetsScene extends Phaser.Scene {
         }
     }
     changeLocation(latitude, longitude) {
-        var lat10 = PetMath.toQuarterMileIncrement(latitude, 10);
-        var lon10 = PetMath.toQuarterMileIncrement(longitude, 10);
-        this.changeBackground(lat10, lon10);
+        this.lat10 = PetMath.toQuarterMileIncrement(latitude, 10);
+        this.lon10 = PetMath.toQuarterMileIncrement(longitude, 10);
+        this.changeBackground(this.lat10, this.lon10);
+    }
+    simulateChangeLocation() {
+        this.lat10 = PetMath.getRandomInt(10);
+        this.lon10 = PetMath.getRandomInt(10);
+        this.changeBackground(this.lat10, this.lon10);
     }
     addTerrainTiles() {
         var xStart = 0;
@@ -531,7 +540,7 @@ class CatchPetsScene extends Phaser.Scene {
         }
         var self = this;
         var encounterFactory = new EncounterFactory();
-        encounterFactory.getEncounter(this.notesPlayedText.text, inventory, function (encounter) {
+        encounterFactory.getEncounter(this.notesPlayedText.text, inventory, this.lat10, this.lon10, function (encounter) {
             self.displayEncounter(encounter);
         });
     }
@@ -631,33 +640,16 @@ class EncounterFactory {
     constructor() {
     }
     // A convenient wrapper for getPetIndex.
-    getEncounter(notesPlayed, inventory, callback) {
+    getEncounter(notesPlayed, inventory, lat10, lon10, callback) {
 
         var dateTime = new Date();
         var self = this;
 
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function (position) {
-                var latitude = position.coords.latitude;
-                var longitude = position.coords.longitude;
-                var encounter = self._getEncounter(latitude, longitude, dateTime, notesPlayed, inventory);
-                callback(encounter);
-            }, function (positionError) {
-                console.error(positionError);
-                var encounter = new Encounter(EncounterType.Message, positionError.message);
-                callback(encounter);
-            }, { timeout: 2000, maximumAge: 5000, enableHighAccuracy: true });
-        } else {
-            var encounter = new Encounter(EncounterType.Message, "Your browser does not support GPS.");
-            callback(encounter);
-        }
+        var encounter = self._getEncounter(lat10, lon10, dateTime, notesPlayed, inventory);
+        callback(encounter);
     }
     // This is a good method to unit test b/c all of the inputs are defined.  
-    // TODO Move to a factory class
-    _getEncounter(latitude, longitude, dateTime, notesPlayed, inventory) {
-
-        var lat10 = PetMath.toQuarterMileIncrement(latitude, 10);
-        var lon10 = PetMath.toQuarterMileIncrement(longitude, 10);
+    _getEncounter(lat10, lon10, dateTime, notesPlayed, inventory) {
 
         var petIndex = 0;
 
