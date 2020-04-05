@@ -32,6 +32,12 @@ class TitleScene extends Phaser.Scene {
 
         this.add.text(this.game.canvas.width * (.47 + textPadPercent), this.game.canvas.height * (.80 + textPadPercent), 'Continue Game\nゲームを続ける\nGēmu o tsudzukeru', { fill: '#fff' })
             .setFontSize(20);
+
+        var scriptSrcString = document.querySelector("#petgame-main-script").getAttribute("src");
+        var gameVersion = scriptSrcString.substring(scriptSrcString.indexOf("=") + 1);
+
+        this.add.text(this.game.canvas.width * (.05 + textPadPercent), this.game.canvas.height * (.75 + textPadPercent), gameVersion, { fill: '#bbb' })
+            .setFontSize(10);
     }
     newSaveGame() {
         saveGame.load();
@@ -112,10 +118,11 @@ class DebugScene extends Phaser.Scene {
             .setInteractive()
             .on('pointerdown', () => window.location.reload(true));    
                     
-        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .30, 'Clear pet inventory.', { fill: '#fff' })
+        // this may not be needed anymore now that new game works.
+        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .30, 'Clear inventory.', { fill: '#fff' })
             .setFontSize(20)
             .setInteractive()
-            .on('pointerdown', () => inventory.pets = []);    
+            .on('pointerdown', () => saveGame.delete());    
                     
         this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .35, 'Vibrate 100ms (90ms pause) 100ms', { fill: '#fff' })
             .setFontSize(20)
@@ -235,7 +242,7 @@ class InventoryScene extends Phaser.Scene {
             .setOrigin(0,0)
             .setInteractive()
             .on('pointerdown', () => { this.assignPetNameplates(--this.currentPetGroupIndex); });
-        this.add.text(this.game.canvas.width * (.05 + textPadPercent), this.game.canvas.height * (.80 + textPadPercent), 'Pervious\n前\nMae', { fill: '#fff' })
+        this.add.text(this.game.canvas.width * (.05 + textPadPercent), this.game.canvas.height * (.80 + textPadPercent), 'Previous\n前\nMae', { fill: '#fff' })
             .setFontSize(20);
 
         // todo a lot of this button nonsense could go in a base class.
@@ -446,14 +453,22 @@ class CatchPetsScene extends Phaser.Scene {
         }
     }
     changeLocation(latitude, longitude) {
-        this.lat10 = PetMath.toQuarterMileIncrement(latitude, 10);
-        this.lon10 = PetMath.toQuarterMileIncrement(longitude, 10);
-        this.changeBackground(this.lat10, this.lon10);
+        var newLat10 = PetMath.toQuarterMileIncrement(latitude, 10);
+        var newLon10 = PetMath.toQuarterMileIncrement(longitude, 10);
+        if (newLat10 != this.lat10 || newLon10 != this.lon10) {
+            this.lat10 = newLat10;
+            this.lon10 = newLon10;
+            this.changeBackground(this.lat10, this.lon10);
+        }
     }
     simulateChangeLocation() {
-        this.lat10 = PetMath.getRandomInt(10);
-        this.lon10 = PetMath.getRandomInt(10);
-        this.changeBackground(this.lat10, this.lon10);
+        var newLat10 = 1;//PetMath.getRandomInt(10);
+        var newLon10 = 1;//PetMath.getRandomInt(10);
+        if (newLat10 != this.lat10 || newLon10 != this.lon10) {
+            this.lat10 = newLat10;
+            this.lon10 = newLon10;
+            this.changeBackground(this.lat10, this.lon10);
+        }
     }
     addTerrainTiles() {
         var xStart = 0;
@@ -571,6 +586,7 @@ class CatchPetsScene extends Phaser.Scene {
             .setVisible(true);
     }
     displayMessageEncounter(encounter) {
+        this.bubble.setVisible(false);
         this.messageText.text = encounter.encounteredThing;
         this.toggleMessagePopup(true);
     }
@@ -591,7 +607,6 @@ class CatchPetsScene extends Phaser.Scene {
         this.enablePianoKeys(true);
         this.notesPlayedText.text = "";
         this.petNameText.text = "";
-        this.bubble.setVisible(true);
         this.petSprite.setVisible(false);
     }
     enablePianoKeys(enabled) {
@@ -657,11 +672,11 @@ class EncounterFactory {
 
         petIndex = this.getCommon(lat10, lon10, coinFlip);
 
-        if (this.collectedRecently(petIndex, inventory, dateTime)) {
+        if (inventory.collectedRecently(petIndex, dateTime)) {
             petIndex = this.getCommon(lat10, lon10, !coinFlip);
         }
 
-        if (this.collectedRecently(petIndex, inventory, dateTime)) {
+        if (inventory.collectedRecently(petIndex, dateTime)) {
             var notHomeMessage = "No one is here.\n誰もいない\nDaremoinai\n\nWalk around.\n歩き回る\nArukimawaru";
             return (new Encounter(EncounterType.Message, notHomeMessage));
         }
@@ -682,19 +697,6 @@ class EncounterFactory {
     }
     getEsCommon(lon10) {
         return esCommonData[lon10];
-    }
-    collectedRecently(petIndex, inventory, dateTime) {
-        const beBackInMinutes = 5;
-        var dateCheck = this.addMinutes(dateTime, - beBackInMinutes);
-
-        var collectedRecently = inventory.pets.some(function (pet) {
-            console.log(pet.petIndex + " " + petIndex + " " + pet.collectedDateTime + " " + dateCheck)
-            return pet.petIndex == petIndex && pet.collectedDateTime > dateCheck;
-        });
-        return collectedRecently;
-    }
-    addMinutes(date, minutes) {
-        return new Date(date.getTime() + minutes * 60000);
     }
 }
 class Inventory {
@@ -720,7 +722,7 @@ class Inventory {
         group.forEach(petIndex => {
             var pet = petData[petIndex];
             var petViewModel = new PetInventoryViewModel();
-            var quantity = inventory.pets.filter(x => x.petIndex == petIndex).length;
+            var quantity = this.pets.filter(x => x.petIndex == petIndex).length;
             petViewModel.petIndex = petIndex;
             petViewModel.name = pet.name;
             petViewModel.quantity = quantity;
@@ -732,6 +734,16 @@ class Inventory {
     }
     isEmpty() {
         return this.items.length === 0 && this.pets.length === 0;
+    }    
+    collectedRecently(petIndex, dateTime) {
+        const beBackInMinutes = 5;
+        var dateCheck = PetMath.addMinutes(dateTime, - beBackInMinutes);
+
+        var collectedRecently = this.pets.some(function (pet) {
+            console.log(pet.petIndex + " " + petIndex + " " + pet.collectedDateTime + " " + dateCheck)
+            return pet.petIndex == petIndex && pet.collectedDateTime > dateCheck;
+        });
+        return collectedRecently;
     }
 }
 class InventoryViewModel {
@@ -781,8 +793,8 @@ class SaveGame {
     }
     load() {
         inventory = new Inventory();
-        inventory.items = JSON.parse(localStorage.getItem(this.itemsKey));
-        inventory.pets = JSON.parse(localStorage.getItem(this.petsKey));
+        inventory.items = JSON.parse(localStorage.getItem(this.itemsKey)) || [];
+        inventory.pets = JSON.parse(localStorage.getItem(this.petsKey)) || [];
     }
     delete() {
         inventory = new Inventory();
@@ -816,6 +828,9 @@ PetMath.toQuarterMileIncrement = function(geocoord, increments) {
 }
 PetMath.getRandomInt = function(max) {
     return Math.floor(Math.random() * Math.floor(max));
+}
+PetMath.addMinutes = function(date, minutes) {
+    return new Date(date.getTime() + minutes * 60000);
 }
 var petData = [
     { name: "Mr. Who Knows", composerId: 1, spritesheetName: 'petsX16', spritesheetFrame: 0 },
@@ -989,10 +1004,10 @@ var skyTypeData = [
     { name: "mountain", spritesheetName: 'terrain', spritesheetFrame: 3 },
     { name: "double-rainbow", spritesheetName: 'terrain', spritesheetFrame: 4 },
     { name: "under-world", spritesheetName: 'terrain', spritesheetFrame: 5 },
-    { name: "rock", spritesheetName: 'terrain', spritesheetFrame: 6 },
+    { name: "meteor", spritesheetName: 'terrain', spritesheetFrame: 6 },
     { name: "cave", spritesheetName: 'terrain', spritesheetFrame: 7 },
-    { name: "forrest", spritesheetName: 'terrain', spritesheetFrame: 8 },
-    { name: "desert", spritesheetName: 'terrain', spritesheetFrame: 9 },
+    { name: "lightning", spritesheetName: 'terrain', spritesheetFrame: 8 },
+    { name: "moon", spritesheetName: 'terrain', spritesheetFrame: 9 },
 ];
 var composerData = [
     "No one. Because arrays start at zero and composerId starts at 1.",
