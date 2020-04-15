@@ -37,7 +37,7 @@ class TitleScene extends Phaser.Scene {
         var gameVersion = scriptSrcString.substring(scriptSrcString.indexOf("=") + 1);
 
         this.add.text(this.game.canvas.width * (.05 + textPadPercent), this.game.canvas.height * (.75 + textPadPercent), gameVersion, { fill: '#bbb' })
-            .setFontSize(10);
+            .setFontSize(10);        
     }
     newSaveGame() {
         saveGame.load();
@@ -497,6 +497,8 @@ class CatchPetsScene extends Phaser.Scene {
         }
     }
     changeBackground(terrainFrameIndex, skyFrameIndex) {
+        soundEffects.playChime();
+        this.bubble.setVisible(true);
         console.log("changeBackground to " + terrainFrameIndex + ", " + skyFrameIndex)
         this.changeTerrain(terrainFrameIndex);
         this.changeSky(skyFrameIndex);
@@ -545,6 +547,9 @@ class CatchPetsScene extends Phaser.Scene {
         return this.pianoKeys[index];
     }
     onPianoKeyPress(index) {
+
+        soundEffects.playPianoKey(index);
+
         console.log("onPianoKeyPress " + index + " lebel " + this.pianoKeys[index].label);
 
         if (this.notesPlayedText.text.length < 4) {
@@ -832,6 +837,48 @@ PetMath.getRandomInt = function(max) {
 PetMath.addMinutes = function(date, minutes) {
     return new Date(date.getTime() + minutes * 60000);
 }
+class SoundEffects {
+    constructor() {
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        this.pianoNotes = [349.23,440.00,523.25,698.46];
+    }
+    createTone(hertz, type) {
+        var toneA = this.audioContext.createOscillator();
+        toneA.frequency.value = hertz;
+        toneA.type = type;
+        toneA.connect(this.audioContext.destination);
+        return toneA;
+    }
+    playPianoKey(index) {
+        var tone = this.createTone(this.pianoNotes[index], "sawtooth");
+        tone.start();
+        window.setTimeout(function() {
+            tone.stop();
+        }, 300);
+    }
+    playChime() {        
+        // todo make it better with data: https://stackoverflow.com/a/44215748/1804678
+        var toneA = this.createTone(349.23, "square");
+
+        var toneB = this.createTone(440.00, "sawtooth");
+    
+        var toneC = this.createTone(523.25, "sawtooth");
+
+        toneA.start();
+
+        window.setTimeout(function() {
+            toneB.start();
+            
+            toneC.start();
+        }, 50);
+    
+        window.setTimeout(function() {
+            toneA.stop();
+            toneB.stop();
+            toneC.stop();
+        }, 100);
+    }    
+}
 var petData = [
     { name: "Mr. Who Knows", composerId: 1, spritesheetName: 'petsX16', spritesheetFrame: 0 },
     { name: "Money Man", composerId: 1, spritesheetName: 'petsX16', spritesheetFrame: 1 },
@@ -1026,8 +1073,10 @@ var composerData = [
     "Teelorj",
     "Ezra, Hero of Pickles",
 ];
+// Singletons
 var inventory = new Inventory();
 var saveGame = new SaveGame();
+var soundEffects = new SoundEffects();
 
 var config = {
     type: Phaser.AUTO,
