@@ -40,6 +40,7 @@ class TitleScene extends Phaser.Scene {
             .setFontSize(10);        
     }
     newSaveGame() {
+        soundEffects.playButtonClick();
         saveGame.load();
         if (!inventory.isEmpty()) {
             var answer = window.confirm("Delete previous save?\n以前の保存を削除しますか？\nIzen no hozon o sakujo shimasu ka?");
@@ -52,6 +53,7 @@ class TitleScene extends Phaser.Scene {
         this.scene.bringToTop('HowToPlayScene');
     }
     loadSaveGame() {
+        soundEffects.playButtonClick();
         saveGame.load();
         this.scene.bringToTop('HowToPlayScene');
     }
@@ -113,7 +115,7 @@ class DebugScene extends Phaser.Scene {
         this.add.text(this.game.canvas.width * .75 - 10, this.game.canvas.height * .20 - 20, 'x', { fill: '#fff' })
             .setFontSize(36);   
                     
-        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .25, 'Refresh from server.', { fill: '#fff' })
+        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .25, 'Refresh from server.', { fill: '#f0f' })
             .setFontSize(20)
             .setInteractive()
             .on('pointerdown', () => window.location.reload(true));    
@@ -124,17 +126,17 @@ class DebugScene extends Phaser.Scene {
             .setInteractive()
             .on('pointerdown', () => saveGame.delete());    
                     
-        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .35, 'Vibrate 100ms (90ms pause) 100ms', { fill: '#fff' })
+        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .35, 'Vibrate 100ms (90ms pause) 100ms', { fill: '#ff0' })
             .setFontSize(20)
             .setInteractive()
             .on('pointerdown', () => navigator.vibrate([100, 90, 100])); 
                     
-        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .40, 'Vibrate 500ms', { fill: '#fff' })
+        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .40, 'Reset Web Audio', { fill: '#0ff' })
             .setFontSize(20)
             .setInteractive()
-            .on('pointerdown', () => navigator.vibrate(500)); 
+            .on('pointerdown', () => soundEffects.initialize()); 
                     
-        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .45, 'Create Phaser 3 error+ (test logging)', { fill: '#fff' })
+        this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .45, 'Create Phaser 3 error+ (test logging)', { fill: '#f99' })
             .setFontSize(20)
             .setInteractive()
             .on('pointerdown', () => this.add.sprite(0,0,'invalid spritesheet name').functionThatDoesNotExist()); 
@@ -839,25 +841,39 @@ PetMath.addMinutes = function(date, minutes) {
 }
 class SoundEffects {
     constructor() {
-        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        this.warmedUp = false;
+        this.audioContext;
+        this.gainNode;
         this.pianoNotes = [349.23,440.00,523.25,698.46];
     }
-    createTone(hertz, type) {
-        var toneA = this.audioContext.createOscillator();
-        toneA.frequency.value = hertz;
-        toneA.type = type;
-        toneA.connect(this.audioContext.destination);
-        return toneA;
+    warmUp() {
+        // Web Audio API will not work on safari unless you have started via a user interaction. 
+        if (this.warmedUp) {
+            return;
+        }
+        this.warmedUp = true;
+        this.initialize();
+    }
+    initialize() {
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        this.gainNode = this.audioContext.createGain();
+        // todo gain (volume) is not working despite it working fine in this example: https://webaudioapi.com/samples/volume/
+        this.gainNode.gain.value = .2; // 0 = 0% 1 = 100%
+        this.gainNode.connect(this.audioContext.destination);
+    }
+    playButtonClick() {
+        this.warmUp();
+        this.playTone(2000, "sawtooth", 50);
     }
     playPianoKey(index) {
-        var tone = this.createTone(this.pianoNotes[index], "sawtooth");
-        tone.start();
-        window.setTimeout(function() {
-            tone.stop();
-        }, 300);
+        this.playTone(this.pianoNotes[index], "triangle", 200);
     }
-    playChime() {        
-        // todo make it better with data: https://stackoverflow.com/a/44215748/1804678
+    playChime() {
+        if (!this.warmedUp) {
+            return;
+        }
+
         var toneA = this.createTone(349.23, "square");
 
         var toneB = this.createTone(440.00, "sawtooth");
@@ -877,7 +893,22 @@ class SoundEffects {
             toneB.stop();
             toneC.stop();
         }, 100);
-    }    
+    }
+    createTone(hertz, type) {
+        var tone = this.audioContext.createOscillator();
+        tone.frequency.value = hertz;
+        tone.type = type;
+        tone.v
+        tone.connect(this.gainNode);
+        return tone;
+    }
+    playTone(frequency, type, duration) {
+        var tone = this.createTone(frequency, type);
+        tone.start();
+        window.setTimeout(function() {
+            tone.stop();
+        }, duration);
+    }  
 }
 var petData = [
     { name: "Mr. Who Knows", composerId: 1, spritesheetName: 'petsX16', spritesheetFrame: 0 },
