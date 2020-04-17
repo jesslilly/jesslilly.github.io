@@ -841,73 +841,31 @@ PetMath.addMinutes = function(date, minutes) {
 }
 class SoundEffects {
     constructor() {
-        this.warmedUp = false;
         this.audioContext;
-        this.gainNode;
         this.pianoNotes = [349.23,440.00,523.25,698.46];
     }
-    warmUp() {
-        // Web Audio API will not work on safari unless you have started via a user interaction. 
-        if (this.warmedUp) {
-            return;
-        }
-        this.warmedUp = true;
-        this.initialize();
-    }
-    initialize() {
-        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        
-        this.gainNode = this.audioContext.createGain();
-        // todo gain (volume) is not working despite it working fine in this example: https://webaudioapi.com/samples/volume/
-        this.gainNode.gain.value = .2; // 0 = 0% 1 = 100%
-        this.gainNode.connect(this.audioContext.destination);
-    }
     playButtonClick() {
-        this.warmUp();
-        this.playTone(2000, "sawtooth", 50);
+        this.playTone(2000, "sawtooth", 0, .050);
     }
     playPianoKey(index) {
-        this.playTone(this.pianoNotes[index], "triangle", 200);
+        this.playTone(this.pianoNotes[index], "triangle", 0, .200);
     }
     playChime() {
-        if (!this.warmedUp) {
+        this.playTone(349.23, "square", 0, .1);
+        this.playTone(440.00, "sawtooth", .05, .1);
+        this.playTone(523.25, "sawtooth", .05, .1);
+    }
+    playTone(frequency, type, startOffsetSeconds, durationSeconds) {
+        if (!window.audioContext) {
             return;
         }
-
-        var toneA = this.createTone(349.23, "square");
-
-        var toneB = this.createTone(440.00, "sawtooth");
-    
-        var toneC = this.createTone(523.25, "sawtooth");
-
-        toneA.start();
-
-        window.setTimeout(function() {
-            toneB.start();
-            
-            toneC.start();
-        }, 50);
-    
-        window.setTimeout(function() {
-            toneA.stop();
-            toneB.stop();
-            toneC.stop();
-        }, 100);
-    }
-    createTone(hertz, type) {
+        this.audioContext = window.audioContext;
         var tone = this.audioContext.createOscillator();
-        tone.frequency.value = hertz;
+        tone.frequency.value = frequency;
         tone.type = type;
-        tone.v
-        tone.connect(this.gainNode);
-        return tone;
-    }
-    playTone(frequency, type, duration) {
-        var tone = this.createTone(frequency, type);
-        tone.start();
-        window.setTimeout(function() {
-            tone.stop();
-        }, duration);
+        tone.connect(this.audioContext.destination);
+        tone.start(this.audioContext.currentTime + startOffsetSeconds);
+        tone.stop(this.audioContext.currentTime + durationSeconds);
     }  
 }
 var petData = [
@@ -1104,10 +1062,29 @@ var composerData = [
     "Teelorj",
     "Ezra, Hero of Pickles",
 ];
-// Singletons
+
+// Singletons (and global - sorry)
 var inventory = new Inventory();
 var saveGame = new SaveGame();
 var soundEffects = new SoundEffects();
+
+function enableSound() {
+    // Web audio API is a pain on iOS safari.  Safari is very picky about the audio context being created by a user interaction.
+    // Use this global audioContext in the game.
+    window.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    osc = audioContext.createOscillator();
+    //osc.frequency.value = 440;
+    osc.frequency.setValueAtTime(400, audioContext.currentTime + .05);
+    osc.frequency.setValueAtTime(500, audioContext.currentTime + .10);
+    osc.frequency.setValueAtTime(600, audioContext.currentTime + .15);
+    osc.frequency.setValueAtTime(700, audioContext.currentTime + .20);
+    osc.type = "triangle";  
+    osc.connect(audioContext.destination);
+    osc.start(0);
+    osc.stop(.25);
+}
+
+var console2 = new Console2();
 
 var config = {
     type: Phaser.AUTO,
@@ -1124,7 +1101,5 @@ var config = {
     // Order here matters.  The first scene is listed last.
     scene: [DebugScene, InventoryScene, CatchPetsScene, HowToPlayScene, TitleScene]
 };
-
-var console2 = new Console2();
 
 var game = new Phaser.Game(config);
