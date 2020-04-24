@@ -40,7 +40,6 @@ class TitleScene extends Phaser.Scene {
             .setFontSize(10);        
     }
     newSaveGame() {
-        soundEffects.playButtonClick();
         saveGame.load();
         if (!inventory.isEmpty()) {
             var answer = window.confirm("Delete previous save?\n以前の保存を削除しますか？\nIzen no hozon o sakujo shimasu ka?");
@@ -53,7 +52,6 @@ class TitleScene extends Phaser.Scene {
         this.scene.bringToTop('HowToPlayScene');
     }
     loadSaveGame() {
-        soundEffects.playButtonClick();
         saveGame.load();
         this.scene.bringToTop('HowToPlayScene');
     }
@@ -226,17 +224,17 @@ class InventoryScene extends Phaser.Scene {
         this.add.rectangle(this.game.canvas.width * .50, this.game.canvas.height * .50, this.game.canvas.width, this.game.canvas.height, 0x5551155, 1)
             .setInteractive(); // to prevent click-through from one sceen to a scene behind it.
             
-        this.add.rectangle(this.game.canvas.width * .75, this.game.canvas.height * .20, this.game.canvas.width *.10, this.game.canvas.width *.10, 0x119911, 1)   
+        this.add.rectangle(this.game.canvas.width * .75, this.game.canvas.height * .15, this.game.canvas.width *.10, this.game.canvas.width *.10, 0x119911, 1)   
             .setInteractive()
             .setOrigin(0,0)
             .on('pointerdown', () => {
                 this.scene.bringToTop('CatchPetsScene');
             });
         var textPadPercent = 0.01;
-        this.add.text(this.game.canvas.width * (.75 + .02), this.game.canvas.height * (.20 + textPadPercent), 'x', { fill: '#fff' })
+        this.add.text(this.game.canvas.width * (.75 + .02), this.game.canvas.height * (.15 + textPadPercent), 'x', { fill: '#fff' })
             .setFontSize(32);
 
-        this.headingText = this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .20, 'NS Commons\n普通の NS\nFutsū no NS', { fill: '#fff' }).setFontSize(20);
+        this.headingText = this.add.text(this.game.canvas.width * .10, this.game.canvas.height * .15, 'NS Commons\n普通の NS\nFutsū no NS', { fill: '#fff' }).setFontSize(20);
 
         var textPadPercent = 0.01;
 
@@ -259,11 +257,11 @@ class InventoryScene extends Phaser.Scene {
     }
     addPetNameplates() {
         var xincrement = this.game.canvas.width * .33;
-        var yIncrement = this.game.canvas.width * .29;
+        var yIncrement = this.game.canvas.width * .22;
         var startingX = this.game.canvas.width * .10;
+        var y = this.game.canvas.height * .27;
 
-        var y = this.game.canvas.height * .29;
-        for (var yIndex = 0; yIndex < 3; yIndex++) {
+        for (var yIndex = 0; yIndex < 4; yIndex++) {
 
             var x = startingX;
             for (var xIndex = 0; xIndex < 3; xIndex++) {
@@ -274,11 +272,9 @@ class InventoryScene extends Phaser.Scene {
 
             y = y + yIncrement;
         }
-        this.addPetNameplate(startingX, y);
     }
     addPetNameplate(x, y) {
         var scale = 4;
-        // todo bubble with hidden / visible toggle.
         var bubbleSprite = this.add.sprite(x, y, 'catchPet')
             .setFrame(0)
             .setOrigin(0,0)
@@ -290,7 +286,7 @@ class InventoryScene extends Phaser.Scene {
             .setVisible(false);
         var scaledHeight = petSprite.height * scale;
         var quantityText = this.add.text(x, y, '0', { fill: '#fff', fontWeight: 'bold' })
-            .setFontSize(16)
+            .setFontSize(20)
             .setShadow(2, 2, 'rgba(0,0,0,1)', 0);
         var nameText = this.add.text(x, y + scaledHeight, '? ? ? ?', { fill: '#fff' })
             .setFontSize(16);
@@ -386,8 +382,9 @@ class CatchPetsScene extends Phaser.Scene {
 
         this.addTerrainTiles();
 
-        this.petNameText = this.add.text(this.game.canvas.width * .15, this.game.canvas.height * .33, "", { fill: '#000' })
-            .setFontSize(36);
+        this.petNameText = this.add.text(this.game.canvas.width * .15, this.game.canvas.height * .33, "", { fill: '#fff', fontWeight: 'bold' })
+            .setFontSize(36)
+            .setShadow(2, 2, 'rgba(0,0,0,1)', 0);
 
         this.bubble = this.add.sprite(this.game.canvas.width * .50, this.game.canvas.height * .50, 'catchPet')
             .setFrame([0])
@@ -406,8 +403,9 @@ class CatchPetsScene extends Phaser.Scene {
             .setFrame([1])
             .setScale(3);
 
-        this.notesPlayedText = this.add.text(this.game.canvas.width * .33, this.game.canvas.height * .70, "", { fill: '#000' })
-            .setFontSize(36);
+        this.notesPlayedText = this.add.text(this.game.canvas.width * .33, this.game.canvas.height * .70, "", { fill: '#fff', fontWeight: 'bold' })
+            .setFontSize(36)
+            .setShadow(2, 2, 'rgba(0,0,0,1)', 0);
 
         var board = this.add.rectangle(this.game.canvas.width * .50, this.game.canvas.height * .85, this.game.canvas.width *.70, this.game.canvas.height * .20, 0x996655, 1);
 
@@ -416,22 +414,24 @@ class CatchPetsScene extends Phaser.Scene {
         this.createPianoKey(2, this.game.canvas.width * 3 / 5, this.game.canvas.height * .80, "C");
         this.createPianoKey(3, this.game.canvas.width * 4 / 5, this.game.canvas.height * .80, "F");
 
-        this.add.rectangle(this.game.canvas.width * .25, this.game.canvas.height * .20, this.game.canvas.width *.33, this.game.canvas.height * .10, 0x000, .5)    
+        this.add.rectangle(this.game.canvas.width * .20, this.game.canvas.height * .20, this.game.canvas.width *.25, this.game.canvas.height * .10, 0x000, .5)    
             .setInteractive()
             .on('pointerdown', () => {
                 this.scene.bringToTop('TitleScene');
             });
-        this.add.text(50, 130, 'Menu\nメニュー\nMenyū', { fill: '#000' })
-            .setFontSize(20);
-
-        var bag = this.add.sprite(this.game.canvas.width * .75, this.game.canvas.height * .20, 'catchPet')
-            .setFrame([3])
+        this.add.text(this.game.canvas.width * .13, this.game.canvas.height * .16, 'Menu\nメニュー\nMenyū', { fill: '#fff' })
+            .setFontSize(20)
+            .setShadow(2, 2, 'rgba(0,0,0,1)', 0);
+          
+        this.add.rectangle(this.game.canvas.width * .80, this.game.canvas.height * .20, this.game.canvas.width *.25, this.game.canvas.height * .10, 0x000, .5)    
             .setInteractive()
             .on('pointerdown', () => {
                 this.scene.get('InventoryScene').assignPetNameplates(0);
                 this.scene.bringToTop('InventoryScene');
             })
-            .setScale(2);
+        this.add.text(this.game.canvas.width * .73, this.game.canvas.height * .16, 'Items\n項目\nKōmoku', { fill: '#fff' })
+            .setFontSize(20)
+            .setShadow(2, 2, 'rgba(0,0,0,1)', 0);
 
         this.createMessagePopup();
 
@@ -464,8 +464,8 @@ class CatchPetsScene extends Phaser.Scene {
         }
     }
     simulateChangeLocation() {
-        var newLat10 = 1;//PetMath.getRandomInt(10);
-        var newLon10 = 1;//PetMath.getRandomInt(10);
+        var newLat10 = PetMath.getRandomInt(10);
+        var newLon10 = PetMath.getRandomInt(10);
         if (newLat10 != this.lat10 || newLon10 != this.lon10) {
             this.lat10 = newLat10;
             this.lon10 = newLon10;
@@ -844,9 +844,6 @@ class SoundEffects {
         this.audioContext;
         this.pianoNotes = [349.23,440.00,523.25,698.46];
     }
-    playButtonClick() {
-        this.playTone(2000, "sawtooth", 0, .050);
-    }
     playPianoKey(index) {
         this.playTone(this.pianoNotes[index], "triangle", 0, .200);
     }
@@ -1082,6 +1079,8 @@ function enableSound() {
     osc.connect(audioContext.destination);
     osc.start(0);
     osc.stop(.25);
+    var wrapper = document.getElementById("enable-sound-wrapper");
+    wrapper.style.display = 'none';
 }
 
 var console2 = new Console2();
