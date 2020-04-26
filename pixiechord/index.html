@@ -8,16 +8,16 @@
     <title>Pixie Chord</title>
     <script src="//cdn.jsdelivr.net/npm/phaser@3.19.0/dist/phaser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
-    <script src="js/main.js?v=1.7" id="petgame-main-script"></script>
+    <script src="js/main.js?v=1.8" id="petgame-main-script"></script>
     <style>
         body {
             margin: 0;
         }
-        .wrapper {
+        #enable-sound-wrapper {
             left: 20;
             position: relative;
         }
-        .wrapper button {
+        #enable-sound-wrapper button {
             z-index: 1000;
             position: absolute;
             left: 50px;
@@ -26,7 +26,7 @@
     </style>
 </head>
 <body>
-    <div class="wrapper" id="enable-sound-wrapper">
+    <div id="enable-sound-wrapper">
         <button onclick="enableSound();">Enable Sound</button>  
     </div>
 </body>

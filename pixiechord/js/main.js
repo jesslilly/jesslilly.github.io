@@ -826,7 +826,7 @@ PetMath.toQuarterMileIncrement = function(geocoord, increments) {
     var geo10 = 0;
     if (geocoord != null) {
         geo10 = geocoord * 3000 % increments;
-        geo10 = Math.abs(Math.floor(geo10));
+        geo10 = Math.floor(Math.abs(geo10));
     }
     else {
         geo10 = PetMath.getRandomInt(10); // 0-9;
